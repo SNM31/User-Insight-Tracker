@@ -15,7 +15,7 @@ public class CookieUtil {
     }
 
     public ResponseCookie deleteSessionCookie(String sessionId){
-        return ResponseCookie.from("sesssionId",sessionId)
+        return ResponseCookie.from("sessionId",sessionId)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
