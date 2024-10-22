@@ -7,6 +7,7 @@ import com.anirudh.utils.JwtUtil;
 import com.anirudh.utils.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class UserService {
     private JwtUtil jwtUtil;
     @Autowired
     private MapperUtil mapperUtil;
+    @Autowired
+    private UserSessionService userSessionService;
 
     public AuthResponse login(AuthRequest authRequest) {
         User user = userRepository.findByUsername(authRequest.getUsername());
@@ -32,7 +35,8 @@ public class UserService {
 
         if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
             String token = jwtUtil.generateToken(user.getUsername());
-            return new AuthResponse(token, user.getUsername(), "Success", HttpStatus.BAD_REQUEST.value());
+            ResponseCookie cookie=userSessionService.createSessionAndGetCookie(user);
+            return new AuthResponse(token, user.getUsername(), "Success", HttpStatus.OK.value(), cookie.toString());
         } else {
             throw new RuntimeException("Invalid Password");
         }
@@ -46,7 +50,7 @@ public class UserService {
         User user= mapperUtil.convertToEntity(authRequest, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return new AuthResponse(null, user.getUsername(),"Registered Successfully",HttpStatus.CREATED.value());
+        return new AuthResponse(null, user.getUsername(),"Registered Successfully",HttpStatus.CREATED.value(),null);
     }
     public User findByUsername(String username)
     {

@@ -6,6 +6,7 @@ import com.anirudh.service.UserService;
 import com.anirudh.utils.JwtUtil;
 import com.anirudh.utils.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,26 +31,16 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest)
     {
-//       User user=userService.findByUsername(authRequest.getUsername());
-//       if(user==null){
-//           AuthResponse response = new AuthResponse(null, null, "Error: Invalid Username", HttpStatus.UNAUTHORIZED.value());
-//           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-//       }
-//       if(passwordEncoder.matches(authRequest.getPassword(), user.getPassword()))
-//       {
-//           String token= jwtUtil.generateToken(user.getUsername());
-//           AuthResponse response = new AuthResponse(token, user.getUsername(), "Success", HttpStatus.OK.value());
-//           return ResponseEntity.ok(response); // Send success response
-//       }
-//       else{
-//           AuthResponse response = new AuthResponse(null, null, "Error: Invalid Password", HttpStatus.UNAUTHORIZED.value());
-//           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-//       }
         try{
             AuthResponse response=userService.login(authRequest);
-            return ResponseEntity.ok().body(response);
+            String cookie=response.getCookie();
+            response.setCookie(null);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE,cookie)
+                    .body(response);
+
         }catch (RuntimeException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse(null,null, e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse(null,null, e.getMessage(), HttpStatus.UNAUTHORIZED.value(),null));
         }
     }
 
@@ -60,7 +51,7 @@ public class AuthController {
             AuthResponse response = userService.registerWithUser(authRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(null, null, e.getMessage(),HttpStatus.UNAUTHORIZED.value()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(null, null, e.getMessage(),HttpStatus.UNAUTHORIZED.value(),null));
         }
     }
 }

@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface UserSessionRepository extends JpaRepository<UserSession,Long> {
 
-    Optional<UserSession> findSessionByID(String sessionId);
+    Optional<UserSession> findSessionById(String sessionId);
 }
