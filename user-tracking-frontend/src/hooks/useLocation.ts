@@ -13,14 +13,20 @@ export const useLocation=()=>{
     useEffect(()=>{
         const fetchLocation = async ()=>{
             try{
-              const response = await axios.get('https://ipapi.co/json/')
+              const  response = await axios.get<{country_name:string,city:string}>('https://ipapi.co/json/')
               setLocation({
-                country:response.data.country_name,
-                city:response.data.city
+                country:response.data.country_name, 
+                city: response.data.city
               })
-            }catch(error:any){
-
+            }catch(error){
+              setError('Failed to fetch location');
+                setLocation({ country: 'Unknown', city: 'Unknown' });
             }
-        }
-    })
+            finally{
+              setLoading(false)
+            }
+      };
+      fetchLocation()
+    },[])
+    return {location,loading,error}
 }
