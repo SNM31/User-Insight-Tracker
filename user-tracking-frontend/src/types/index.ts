@@ -14,6 +14,18 @@ export interface LocationData {
     country: string;
     city: string;
 }
+
+// Enum for activity types to ensure type safety
+export enum ActivityType {
+    CLICK = 'click',
+    FORM_SUBMISSION = 'form_submission',
+    BACKGROUND_TIME = 'background_time',
+    LOCATION = 'location',
+    SCROLL = 'scroll',
+    PAGE_VIEW = 'page_view',
+    IDLE = 'idle'
+}
+
 export interface UserActivity {
     userId: number;                     // ID of the user
     sessionId: string;                  // Unique session identifier
@@ -29,20 +41,10 @@ export interface UserActivity {
     locationCountry?: string;           // Country from which the user is accessing
     locationCity?: string;              // City from which the user is accessing
 }
+
 export interface BaseActivity {
     type: ActivityType;
     url: string;
-}
-
-// Enum for activity types to ensure type safety
-export enum ActivityType {
-    CLICK = 'click',
-    FORM_SUBMISSION = 'form_submission',
-    BACKGROUND_TIME = 'background_time',
-    LOCATION = 'location',
-    SCROLL = 'scroll',
-    PAGE_VIEW = 'page_view',
-    IDLE = 'idle'
 }
 
 export type CreateUserActivity = Omit<UserActivity, 'timestamp'> & {

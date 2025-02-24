@@ -2,9 +2,11 @@ package com.anirudh.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor // Lombok annotation to generate constructor with parameters
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthResponse {
     private String token;        // The generated JWT token
     private String username;     // The username of the authenticated user

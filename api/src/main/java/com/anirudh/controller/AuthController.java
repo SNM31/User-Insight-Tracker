@@ -41,7 +41,8 @@ public class AuthController {
                     .body(response);
 
         }catch (RuntimeException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse(null,null, e.getMessage(), HttpStatus.UNAUTHORIZED.value(),null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new AuthResponse(null, null, e.getMessage(), HttpStatus.UNAUTHORIZED.value(), null));
         }
     }
 
@@ -52,7 +53,8 @@ public class AuthController {
             AuthResponse response = userService.registerWithUser(authRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(null, null, e.getMessage(),HttpStatus.UNAUTHORIZED.value(),null));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new AuthResponse(null, null, e.getMessage(), HttpStatus.BAD_REQUEST.value(), null));
         }
      }
 }

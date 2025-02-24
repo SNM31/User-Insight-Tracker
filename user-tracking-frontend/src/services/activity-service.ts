@@ -1,6 +1,6 @@
 import api from '../api/axios.config';
-import { CookieUtils } from '../utils/cookieUtils';
-import { UserActivity } from '../types';
+import { CookieUtils } from '../utilities/cookieUtils';
+import { UserActivity, ActivityType } from '../types';
 
 class ActivityService {
     private activities: UserActivity[] = [];
@@ -11,41 +11,56 @@ class ActivityService {
     private readonly IDLE_THRESHOLD = 60000; // 1 minute
     private readonly SEND_INTERVAL = 300000; // 5 minutes
 
+    // Store bound event handlers
+    private boundHandleClick: (event: MouseEvent) => void;
+    private boundHandleScroll: () => void;
+    private boundUpdateLastActivityTime: () => void;
+
     constructor() {
+        // Bind event handlers once in constructor
+        this.boundHandleClick = this.handleClick.bind(this);
+        this.boundHandleScroll = this.handleScroll.bind(this);
+        this.boundUpdateLastActivityTime = this.updateLastActivityTime.bind(this);
+
         this.setupEventListeners();
         this.startTracking();
+        // Track initial page view
+        this.trackActivity({
+            type: ActivityType.PAGE_VIEW,
+            url: window.location.href
+        });
     }
 
     private setupEventListeners() {
-        document.addEventListener('click', this.handleClick);
-        document.addEventListener('scroll', this.handleScroll);
-        document.addEventListener('mousemove', this.updateLastActivityTime);
-        document.addEventListener('keypress', this.updateLastActivityTime);
+        document.addEventListener('click', this.boundHandleClick);
+        document.addEventListener('scroll', this.boundHandleScroll);
+        document.addEventListener('mousemove', this.boundUpdateLastActivityTime);
+        document.addEventListener('keypress', this.boundUpdateLastActivityTime);
     }
 
-    private handleClick = (event: MouseEvent) => {
+    private handleClick(event: MouseEvent) {
         const target = event.target as HTMLElement;
         this.trackActivity({
-            type: 'click',
+            type: ActivityType.CLICK,
             element: target.tagName,
             url: window.location.href
         });
-    };
+    }
 
-    private handleScroll = () => {
+    private handleScroll() {
         const scrollDepth = Math.round(
             (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100
         );
         this.trackActivity({
-            type: 'scroll',
+            type: ActivityType.SCROLL,
             scrollDepth,
             url: window.location.href
         });
-    };
+    }
 
-    private updateLastActivityTime = () => {
+    private updateLastActivityTime() {
         this.lastActivityTime = Date.now();
-    };
+    }
 
     private trackActivity(activity: Partial<UserActivity>) {
         const sessionId = CookieUtils.getSessionId();
@@ -58,7 +73,7 @@ class ActivityService {
             sessionId,
             timestamp: new Date().toISOString(),
             ...activity
-        });
+        } as UserActivity);
     }
 
     private updateTimes() {
@@ -96,10 +111,17 @@ class ActivityService {
         if (this.intervalId) {
             clearInterval(this.intervalId);
         }
-        document.removeEventListener('click', this.handleClick);
-        document.removeEventListener('scroll', this.handleScroll);
-        document.removeEventListener('mousemove', this.updateLastActivityTime);
-        document.removeEventListener('keypress', this.updateLastActivityTime);
+        document.removeEventListener('click', this.boundHandleClick);
+        document.removeEventListener('scroll', this.boundHandleScroll);
+        document.removeEventListener('mousemove', this.boundUpdateLastActivityTime);
+        document.removeEventListener('keypress', this.boundUpdateLastActivityTime);
+    }
+
+    public trackPageView(url: string) {
+        this.trackActivity({
+            type: ActivityType.PAGE_VIEW,
+            url
+        });
     }
 }
 

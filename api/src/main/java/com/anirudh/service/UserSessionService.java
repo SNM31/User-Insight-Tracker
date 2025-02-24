@@ -7,10 +7,12 @@ import com.anirudh.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Service
 public class UserSessionService {
     @Autowired
     private UserSessionRepository userSessionRepository;
@@ -28,13 +30,16 @@ public class UserSessionService {
     }
     public void updateLastAccessed(String sessionId)
     {
-        UserSession session=userSessionRepository.findSessionById(sessionId).orElseThrow(()->new RuntimeException("Session Not found"));
+        UserSession session=userSessionRepository.findSessionById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Session Not found"));
         session.setLastAccessedAt(LocalDateTime.now());
         userSessionRepository.save(session);
     }
     public void terminateSession(String sessionId)
     {
-        userSessionRepository.deleteById(Long.getLong(sessionId));
+        UserSession session = userSessionRepository.findSessionById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Session Not found"));
+        userSessionRepository.delete(session);
     }
     public ResponseCookie getSessionCookie(String sessionId)
     {

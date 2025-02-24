@@ -1,5 +1,6 @@
 import React,{createContext,useContext,useState,useEffect, ContextType, ReactNode} from 'react'
 import { AuthResponse } from '../types'
+import { CookieUtils } from '../utilities/cookieUtils'
 
 interface AuthContextType{
     isAuthenticated:boolean;
@@ -16,20 +17,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(()=>{
       const token=localStorage.getItem('token')
       const storedUserName=localStorage.getItem('username')
-      if(token && storedUserName){
+      const sessionId = CookieUtils.getSessionId()
+      
+      if(token && storedUserName && sessionId){
         setIsAuthenticated(true)
         setUsername(storedUserName)
+      } else {
+        logout()
       }
     },[])
    const login= (response:AuthResponse)=>{
     setIsAuthenticated(true)
     setUsername(response.username)
+    CookieUtils.setSessionId(crypto.randomUUID())
    }
    const logout=()=>{
      setIsAuthenticated(false)
      setUsername(null)
      localStorage.removeItem('token')
      localStorage.removeItem('username')
+     CookieUtils.removeSessionId()
    }
    return (
     <AuthContext.Provider value={{ isAuthenticated, username, login, logout }}>

@@ -2,9 +2,14 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../hooks/useLocation';
 
+interface Location {
+    country: string;
+    city: string;
+}
+
 export const Dashboard: React.FC = () => {
     const { username, logout } = useAuth();
-    const { location, loading } = useLocation();
+    const { location, loading, error } = useLocation();
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -34,10 +39,12 @@ export const Dashboard: React.FC = () => {
                         <h2 className="text-2xl font-bold mb-4">Your Location</h2>
                         {loading ? (
                             <p>Loading location...</p>
+                        ) : error ? (
+                            <p className="text-red-600">Error loading location: {error}</p>
                         ) : (
                             <>
-                                <p className="mb-2">Country: {location.country}</p>
-                                <p>City: {location.city}</p>
+                                <p className="mb-2">Country: {location?.country}</p>
+                                <p>City: {location?.city}</p>
                             </>
                         )}
                     </div>
