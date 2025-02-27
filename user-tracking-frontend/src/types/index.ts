@@ -8,6 +8,7 @@ export interface AuthResponse {
     username: string;
     message: string;
     statusCode: number;
+    cookie?: string;
 }
 
 export interface LocationData {

@@ -8,15 +8,15 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final String secretKey="";
-    private final int tokenExpiryTime=10*60*60*10;
+    private final String secretKey = "your-secret-key-here";
+    private final int tokenExpiryTime = 10 * 60 * 60 * 10;
 
     public String generateToken(String userName)
     {
         return JWT.create()
                 .withSubject(userName)
                 .withIssuedAt(new Date(System.currentTimeMillis()))
-                .withExpiresAt(new Date(System.currentTimeMillis()))
+                .withExpiresAt(new Date(System.currentTimeMillis() + tokenExpiryTime * 1000))
                 .sign(Algorithm.HMAC256(secretKey));
     }
 
