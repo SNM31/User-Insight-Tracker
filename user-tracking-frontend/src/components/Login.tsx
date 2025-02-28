@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
-import { trackUserActivity } from '../services/activityService';
-import { AuthResponse } from '../types';
-import { ActivityType } from '../types';
 
 export const Login: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -38,25 +35,12 @@ export const Login: React.FC = () => {
                 password 
             });
             
-            // First set up authentication
+            // Set up authentication
             login(response.token, response.username);
             
-            // Then track activity with the token in place
-            try {
-                await trackUserActivity({
-                    type: ActivityType.PAGE_VIEW,
-                    url: '/login',
-                    element: 'login-form',
-                    userId: 1, // You should get this from the login response
-                    sessionId: 'temp-session', // You should get this from the login response or session
-                    timestamp: new Date().toISOString()
-                });
-            } catch (activityError) {
-                // Don't block login if activity tracking fails
-                console.warn('Failed to track login activity:', activityError);
-            }
+            console.log('Login successful, navigating to home...'); // Debug log
+            navigate('/', { replace: true });
             
-            navigate('/');
         } catch (err) {
             console.error('Login error:', err);
             setError(err instanceof Error ? err.message : 'Login failed');
