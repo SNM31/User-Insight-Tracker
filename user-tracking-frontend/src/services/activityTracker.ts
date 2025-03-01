@@ -58,22 +58,17 @@ class ActivityTracker {
 
     // Send activities to the server
     private async sendActivities() {
-        // If no activities, don't do anything
         if (this.activities.length === 0) return;
 
-        try {
-            // Get all current activities
-            const activitiesToSend = [...this.activities];
-            // Clear the list
-            this.activities = [];
+        const activitiesToSend = [...this.activities]; // Define outside try block
+        this.activities = [];
 
-            // Send to server
+        try {
             await api.post('/api/send/user-activity', activitiesToSend);
             console.log('Sent activities:', activitiesToSend.length);
         } catch (error) {
             console.log('Failed to send activities:', error);
-            // If failed, put activities back in list
-            this.activities = [...activitiesToSend, ...this.activities];
+            this.activities = [...this.activities, ...activitiesToSend];
         }
     }
 
