@@ -1,8 +1,10 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useActivityTracking } from '../hooks/useActivityTracking';
 
 const Home: React.FC = () => {
     const { username } = useAuth();
+    useActivityTracking('home');
 
     return (
         <div className="container mx-auto p-4">
