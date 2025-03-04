@@ -12,13 +12,37 @@ public class UserActivityDto {
     private Long userId; // ID of the user
     private String sessionId; // Unique session identifier
     private ActivityType type; // e.g., click, form_submission, background_time, location
-    private String element; // The HTML element that was interacted with (for clicks)
-    private String formId; // The ID of the form (for submissions)
-    private LocalDateTime timestamp; // When the interaction occurred
     private String url; // The URL of the page where the interaction happened
-    private Integer scrollDepth; // Maximum scroll depth reached
-    private Long activeTime; // Active time spent on page
-    private Long idleTime; // Idle time spent without interaction
-    private String locationCountry; // Country from which the user is accessing
-    private String locationCity; // City from which the user is accessing
+    private String previousUrl;
+    private String nextUrl;
+    
+    // Element interaction
+    private String element;
+    private String elementId;
+    
+    // Form tracking
+    private String formId;
+    private String formData;
+    
+    // Search and Filter
+    private String searchQuery;
+    private String filterApplied;
+    
+    // Success tracking
+    private Boolean successful;
+    private String errorMessage;
+    
+    // Time tracking
+    private Long activeTime;
+    private Long timeOnPage;
+    
+    // Device info
+    private String deviceInfo;
+    
+    // Location
+    private String locationCountry;
+    private String locationCity;
+    
+    // Timestamp will be set server-side if not provided
+    private LocalDateTime timestamp;
 }

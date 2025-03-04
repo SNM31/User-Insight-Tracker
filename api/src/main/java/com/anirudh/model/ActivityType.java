@@ -1,11 +1,14 @@
 package com.anirudh.model;
 
 public enum ActivityType {
-    CLICK,
-    FORM_SUBMISSION,
-    BACKGROUND_TIME,
-    LOCATION,
-    SCROLL,
     PAGE_VIEW,
-    IDLE
+    CLICK,
+    FORM_START,
+    FORM_SUBMIT,
+    FORM_ABANDON,
+    CONTENT_VIEW,
+    FEATURE_USE,
+    ERROR_ENCOUNTER,
+    SEARCH,
+    FILTER_USE
 } 
