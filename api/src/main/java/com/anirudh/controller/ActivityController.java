@@ -28,6 +28,7 @@ public class ActivityController {
            return new ResponseEntity<>("User Activity Recorded", HttpStatus.OK);
        }catch (Exception e){
            return new ResponseEntity<>(e.toString(),HttpStatus.INTERNAL_SERVER_ERROR);
+           // check this
        }
     }
 
