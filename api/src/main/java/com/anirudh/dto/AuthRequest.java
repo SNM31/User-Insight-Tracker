@@ -1,8 +1,8 @@
 package com.anirudh.dto;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
 public class AuthRequest {

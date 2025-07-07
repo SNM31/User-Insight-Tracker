@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "user_activities", indexes = {
-    @Index(name = "idx_user_activities_session", columnList = "session_id"),
-    @Index(name = "idx_user_activities_timestamp", columnList = "timestamp"),
-    @Index(name = "idx_user_activities_type", columnList = "type"),
-    @Index(name = "idx_user_activities_url", columnList = "url")
+    // @Index(name = "idx_user_activities_session", columnList = "session_id"),
+    // @Index(name = "idx_user_activities_timestamp", columnList = "timestamp"),
+    // @Index(name = "idx_user_activities_type", columnList = "type"),
+    // @Index(name = "idx_user_activities_url", columnList = "url")
 })
 public class UserActivity {
     @Id

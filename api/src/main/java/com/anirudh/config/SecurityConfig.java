@@ -26,7 +26,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable()) // Disable CSRF protection for simplicity; enable in production!
             .authorizeHttpRequests(authz -> authz
                     .requestMatchers("/api/auth/**").permitAll() // Allow access to authentication endpoints without authentication
