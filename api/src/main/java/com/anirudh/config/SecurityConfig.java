@@ -27,9 +27,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             // .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .headers(headers -> headers.frameOptions(frameOptions->frameOptions.disable())) // Allow frames from the same origin (useful for H2 console)
             .csrf(csrf -> csrf.disable()) // Disable CSRF protection for simplicity; enable in production!
+
             .authorizeHttpRequests(authz -> authz
-                    .requestMatchers("/api/auth/**").permitAll() // Allow access to authentication endpoints without authentication
+                    .requestMatchers("/h2-console/**", "/auth/**", "/api/auth/**").permitAll() // Allow access to H2 console and authentication endpoints without authentication
                     .anyRequest().authenticated() // All other requests require authentication
             );
 

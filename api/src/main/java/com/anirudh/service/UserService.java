@@ -7,7 +7,6 @@ import com.anirudh.utils.JwtUtil;
 import com.anirudh.utils.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.anirudh.model.User;
@@ -22,25 +21,19 @@ public class UserService {
     private JwtUtil jwtUtil;
     @Autowired
     private MapperUtil mapperUtil;
-    @Autowired
-    private UserSessionService userSessionService;
 
     public AuthResponse login(AuthRequest authRequest) {
-        // Check if username exists
         User user = userRepository.findByUsername(authRequest.getUsername());
         if (user == null) {
             throw new RuntimeException("User does not exist. Please register first.");
         }
 
-        // Verify password
         if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
             throw new RuntimeException("Incorrect password. Please try again.");
         }
 
-        // Generate token and session
         String token = jwtUtil.generateToken(user.getUsername());
-        ResponseCookie cookie = userSessionService.createSessionAndGetCookie(user);
-        return new AuthResponse(token, user.getUsername(), "Login successful", HttpStatus.OK.value(), cookie.toString());
+        return new AuthResponse(token, user.getUsername(), "Login successful", HttpStatus.OK.value());
     }
 
     public AuthResponse registerWithUser(AuthRequest authRequest) {
@@ -62,7 +55,7 @@ public class UserService {
         User user = mapperUtil.convertToEntity(authRequest, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return new AuthResponse(null, user.getUsername(), "Registration successful", HttpStatus.CREATED.value(), null);
+        return new AuthResponse(null, user.getUsername(), "Registration successful", HttpStatus.CREATED.value());
     }
 
     public User findByUsername(String username) {
