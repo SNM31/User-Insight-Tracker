@@ -7,12 +7,15 @@ import com.anirudh.utils.JwtUtil;
 import com.anirudh.utils.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.anirudh.model.User;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -21,6 +24,15 @@ public class UserService {
     private JwtUtil jwtUtil;
     @Autowired
     private MapperUtil mapperUtil;
+
+     @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+         User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+        return user;
+    }
 
     public AuthResponse login(AuthRequest authRequest) {
         User user = userRepository.findByUsername(authRequest.getUsername());
