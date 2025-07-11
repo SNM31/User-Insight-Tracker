@@ -22,6 +22,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         String token = ((JwtAuthenticationToken) authentication).getToken();
 
         String username = jwtUtil.validateAndExtractUsername(token);
+        System.out.println("Username extracted from JWT: " + username);
         if (username == null) {
             throw new BadCredentialsException("Invalid JWT Token");
         }

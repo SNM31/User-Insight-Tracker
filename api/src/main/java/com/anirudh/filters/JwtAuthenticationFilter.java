@@ -34,14 +34,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response); // Continue the filter chain for other requests
             return; 
         }
+        System.out.println("JWT Authentication Filter triggered for login request");
         ObjectMapper mapper = new ObjectMapper();
         User user=mapper.readValue(request.getInputStream(), User.class);
+        System.out.println("Username in Authentication Filter: " + user.getUsername());
         UsernamePasswordAuthenticationToken autToken= new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
         Authentication authentication= authenticationManager.authenticate(autToken);
         if(authentication.isAuthenticated()){
+            System.out.println("User authenticated successfully: " + user.getUsername());
             String token = jwtUtil.generateToken(user.getUsername());
             response.setHeader("Authorization", "Bearer " + token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
         }

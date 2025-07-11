@@ -72,6 +72,7 @@ public class JwtUtil {
                     .getBody()
                     .getSubject();
         } catch (JwtException e) {
+            System.out.println("Invalid JWT Token: " + e.getMessage());
             return null; // Invalid or expired JWT
         }
     }

@@ -21,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.anirudh.authenticationProviders.JwtAuthenticationProvider;
 import com.anirudh.filters.JwtAuthenticationFilter;
+import com.anirudh.filters.JwtValidationFilter;
 import com.anirudh.service.UserService;
 import com.anirudh.utils.JwtUtil;
 
@@ -60,6 +61,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,AuthenticationManager authenticationManager) throws Exception {
          // Authentication filter responsible for login
         JwtAuthenticationFilter jwtAuthFilter = new JwtAuthenticationFilter(jwtUtil,authenticationManager);
+        JwtValidationFilter jwtValidationFilter=new JwtValidationFilter(authenticationManager);
 
         http
             // .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -71,8 +73,8 @@ public class SecurityConfig {
             )
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class);        
-
+            .addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(jwtValidationFilter, JwtAuthenticationFilter.class); // Add JWT validation filter after authentication filter;
         return http.build();
     }
 

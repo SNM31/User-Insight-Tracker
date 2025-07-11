@@ -48,23 +48,22 @@ public class UserService implements UserDetailsService {
         return new AuthResponse(token, user.getUsername(), "Login successful", HttpStatus.OK.value());
     }
 
-    public AuthResponse registerWithUser(AuthRequest authRequest) {
+    public AuthResponse registerWithUser(User user) {
         // Validate username
-        if (authRequest.getUsername() == null || authRequest.getUsername().trim().isEmpty()) {
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
             throw new RuntimeException("Username cannot be empty");
         }
 
         // Check if username already exists
-        if (userRepository.findByUsername(authRequest.getUsername()) != null) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new RuntimeException("Username already exists. Please choose a different username.");
         }
 
         // Validate password
-        if (authRequest.getPassword() == null || authRequest.getPassword().length() < 6) {
+        if (user.getPassword() == null || user.getPassword().length() < 6) {
             throw new RuntimeException("Password must be at least 6 characters long");
         }
 
-        User user = mapperUtil.convertToEntity(authRequest, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return new AuthResponse(null, user.getUsername(), "Registration successful", HttpStatus.CREATED.value());
