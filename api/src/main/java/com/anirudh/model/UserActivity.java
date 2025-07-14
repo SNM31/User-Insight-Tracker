@@ -14,6 +14,7 @@ public class UserActivity {
     private Long id;
     @Column(name = "user_id")
     private Long userId;
+    @Enumerated(EnumType.STRING)
     private EventType eventType;
     private String category;
     private String subcategory;

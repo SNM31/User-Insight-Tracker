@@ -18,11 +18,12 @@ import com.anirudh.service.ActivityService;
 import com.anirudh.service.UserService;
 import com.anirudh.utils.IpUtil;
 
-import io.jsonwebtoken.Jwt;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/activity")
+@RequiredArgsConstructor
 public class ActivityController {
     @Autowired
     private ActivityService activityService;
@@ -31,21 +32,22 @@ public class ActivityController {
     @Autowired
     private IpUtil ipUtil;
     @PostMapping("/log")
-    public ResponseEntity<String> trackActivity(@RequestBody UserActivityDto userActivityDto,@AuthenticationPrincipal Jwt jwt,
+    public ResponseEntity<String> trackActivity(@RequestBody UserActivityDto userActivityDto,@AuthenticationPrincipal User user,
                                              HttpServletRequest request) {
         try {
-            String username=jwt.getPayload().toString();
-            User user=(User)(userService.loadUserByUsername(username));
             if(user==null){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
             }
 
             String clientIp=ipUtil.getClientIp(request);
-            
+            System.out.println("Client IP: " + clientIp);
+           GeoData geoData = ipUtil.fetchGeoData(clientIp);
+           System.out.println("country_name "+ geoData.getCountryName());
+            System.out.println("city "+ geoData.getCity());
 
             UserActivity userActivity = getUserActivity(userActivityDto, user, clientIp,
                                         isEventTypeLogin(userActivityDto.getEventType(), clientIp) ?
-                                        ipUtil.fetchGeoData(clientIp) : null);
+                                        geoData : null);
         
 
              activityService.trackUserActivity(userActivity);
@@ -63,7 +65,7 @@ public class ActivityController {
         .duration(userActivityDto.getDuration())
         .timestamp(userActivityDto.getTimestamp())
         .ipAddress(clientIp)
-        .country(geoData != null ? geoData.getCountry_name() : "Unknown")
+        .country(geoData != null ? geoData.getCountryName() : "Unknown")
         .city(geoData != null ? geoData.getCity() : "Unknown")
         .deviceType(userActivityDto.getDeviceinfo())
         .build();
