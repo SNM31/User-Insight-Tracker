@@ -49,7 +49,11 @@ public class ActivityController {
                                         isEventTypeLogin(userActivityDto.getEventType(), clientIp) ?
                                         geoData : null);
         
-
+            if (userActivity.getEventType() == EventType.SESSION_DURATION || userActivity.getEventType() == EventType.TIME_SPENT_ON_SUBCATEGORY) {
+            if (userActivity.getDuration() == null || userActivity.getDuration() <= 0) {
+                return ResponseEntity.badRequest().body("Duration must be provided for " + userActivity.getEventType() + " event.");
+            }
+        }
              activityService.trackUserActivity(userActivity);
             return ResponseEntity.status(HttpStatus.CREATED).body("Activity logged successfully: " + userActivity.getId());
         } catch (Exception e) {

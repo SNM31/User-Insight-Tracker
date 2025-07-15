@@ -1,30 +1,24 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { Login } from './components/Login';
-import { Register } from './components/Register';
-import Home from './components/Home';
+import Login from './pages/LoginPage';
+import Register from './pages/RegisterPage';
+import Home from './pages/HomePage';
 
-function App() {
-    return (
-        <AuthProvider>
-            <Router>
-                <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route 
-                        path="/" 
-                        element={
-                            <ProtectedRoute>
-                                <Home />
-                            </ProtectedRoute>
-                        } 
-                    />
-                </Routes>
-            </Router>
-        </AuthProvider>
-    );
+const isAuthenticated = () => {
+  return !!localStorage.getItem('token');
+};
+
+const App = () => {
+  return (
+    <div className="App">
+      <Router>
+        <Routes>
+          <Route path="/login" element={isAuthenticated() ? <Navigate to="/home" /> : <Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/home" element={isAuthenticated() ? <Home /> : <Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </div>
+  );
 }
-
 export default App;
