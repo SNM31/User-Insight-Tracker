@@ -10,26 +10,38 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-  try {
-    const response = await axios.post('http://localhost:8080/api/auth/login', {
-      username,
-      password,
-    });
-    
-    const token = response.headers['authorization'];
-    if (token) {
-      localStorage.setItem('token', token);
-      navigate('/home');
-    } else {
-      setError("No token received");
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', {
+        username,
+        password,
+      });
+      console.log("Response Headers:", response.headers);
+       
+      const token = response.headers['Authorization'] || response.headers['authorization'];
+      console.log("Token:", token);
+      if (token) {
+        localStorage.setItem('token', token.replace('Bearer ', ''));
+        navigate('/home');
+      } else {
+        setError("No token received");
+      }
+    } catch (err) {
+      setError("Login failed");
     }
-  } catch (err) {
-    setError("Login failed");
-  }
   };
 
   return (
     <div className="flex flex-col items-center mt-20">
+      <div className="mb-4 text-sm text-gray-600">
+        Don’t have an account?
+        <button
+          onClick={() => navigate('/register')}
+          className="ml-2 text-blue-500 hover:underline"
+        >
+          Sign up
+        </button>
+      </div>
+
       <h2 className="text-2xl mb-4">Login</h2>
       <form onSubmit={handleLogin} className="flex flex-col w-80 gap-4">
         <input

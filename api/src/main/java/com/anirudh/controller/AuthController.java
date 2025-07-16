@@ -52,7 +52,11 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest authRequest)
     {
         try {
-            User user = mapperUtil.convertToEntity(authRequest,User.class);
+            User user = User.builder()
+                    .username(authRequest.getUsername())
+                    .password(authRequest.getPassword())
+                    .role("ROLE_USER") // Default role, can be modified as needed
+                    .build();
             System.out.println(user.getUsername());
             System.out.println(user.getPassword());
             System.out.println(user.getRole());

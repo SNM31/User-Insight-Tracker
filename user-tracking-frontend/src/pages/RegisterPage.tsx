@@ -26,6 +26,14 @@ const RegisterPage = () => {
 
   return (
     <div className="flex flex-col items-center mt-20">
+      <div className="mb-4 text-sm text-gray-600">
+        Already have an account?
+        <button
+         onClick={() => navigate('/login')}
+         className="ml-2 text-blue-500 hover:underline">
+         Sign in
+        </button>
+      </div>
       <h2 className="text-2xl mb-4">Register</h2>
       <form onSubmit={handleRegister} className="flex flex-col w-80 gap-4">
         <input
