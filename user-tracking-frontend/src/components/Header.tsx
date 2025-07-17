@@ -5,12 +5,14 @@ const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="bg-white shadow p-4 flex items-center justify-between">
-      <div className="flex items-center cursor-pointer" onClick={() => navigate('/home')}>
-        <img src="/logo.png" alt="Logo" className="h-8 w-8 mr-2" />
-        <h1 className="text-xl font-semibold text-gray-800">User Insight Tracker</h1>
-      </div>
-    </header>
+ <header className="bg-white shadow p-4 flex items-center justify-between">
+  <div className="flex items-center gap-3">
+    <img src="/Logo.png" alt="Logo" className="h-12 w-auto object-contain" />
+    <h1 className="text-xl font-semibold text-gray-800">User Loom</h1>
+  </div>
+</header>
+
+
   );
 };
 

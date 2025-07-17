@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  
+  // Correctly destructuring the custom hook
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,12 +19,11 @@ const Login = () => {
         username,
         password,
       });
-      console.log("Response Headers:", response.headers);
-       
+
       const token = response.headers['Authorization'] || response.headers['authorization'];
-      console.log("Token:", token);
       if (token) {
         localStorage.setItem('token', token.replace('Bearer ', ''));
+        setIsAuthenticated(true);
         navigate('/home');
       } else {
         setError("No token received");
