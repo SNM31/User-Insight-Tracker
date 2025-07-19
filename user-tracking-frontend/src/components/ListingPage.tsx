@@ -1,36 +1,36 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { categoryData } from '../data/categoryData';
+import { trackEvent, EventType } from '../utils/tracker';
 
 const ListingPage = () => {
   const { category, sub } = useParams();
+  const [startTime, setStartTime] = useState(Date.now());
 
-  // Example fake data
-  const listings = Array.from({ length: 6 }).map((_, i) => ({
-    title: `Article ${i + 1}`,
-    description: `This is a short description for article ${i + 1} under ${sub}.`,
-    image: 'https://via.placeholder.com/600x400',
-  }));
+  const currentCategory = categoryData.find(cat => cat.slug === category);
+  const currentSubCategory = currentCategory?.subcategories.find(subcat => subcat.slug === sub);
+
+  useEffect(() => {
+    trackEvent(EventType.CONTENT_OPENED, { category, sub });
+    setStartTime(Date.now());
+
+    return () => {
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      trackEvent(EventType.TIME_SPENT_ON_SUBCATEGORY, { category, sub, timeSpent });
+    };
+  }, [category, sub]);
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">
-        Articles in {sub} ({category})
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {listings.map((item, idx) => (
-          <div
-            key={idx}
-            className="border rounded shadow hover:shadow-lg overflow-hidden"
-          >
-            <img
-              src={item.image}
-              alt={item.title}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.description}</p>
-            </div>
+      <h2 className="text-2xl font-bold mb-4">{currentSubCategory?.name} Articles</h2>
+      <p className="text-gray-700 mb-4">{currentSubCategory?.description}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[1, 2, 3].map((id) => (
+          <div key={id} className="border p-4 rounded shadow">
+            <h3 className="text-xl font-semibold mb-2">Fake Article {id}</h3>
+            <p className="text-sm text-gray-600">
+              This is a placeholder for an article about {currentSubCategory?.name}.
+            </p>
           </div>
         ))}
       </div>

@@ -1,14 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Category } from '../data/categoryData';
+import { trackEvent, EventType } from '../utils/tracker';
 
-// Define the type for individual category
-type Category = {
-  name: string;
-  slug: string;
-  image?: string;
-};
-
-// Define the props type for CategoryList component
 type CategoryListProps = {
   categories: Category[];
 };
@@ -20,6 +14,7 @@ const CategoryList: React.FC<CategoryListProps> = ({ categories }) => {
         <Link
           to={`/category/${cat.slug}`}
           key={cat.slug}
+          onClick={() => trackEvent(EventType.CATEGORY_VIEW, { category: cat.slug })}
           className="block border rounded overflow-hidden shadow hover:shadow-lg transition duration-200"
         >
           <img

@@ -9,6 +9,10 @@ export const useAuth = () => {
     const token = localStorage.getItem('token');
     if (token && isTokenValid(token)) {
       setIsAuthenticated(true);
+      // Set login time if not already set
+      if (!localStorage.getItem('loginTime')) {
+        localStorage.setItem('loginTime', Date.now().toString());
+      }
     } else {
       setIsAuthenticated(false);
     }
