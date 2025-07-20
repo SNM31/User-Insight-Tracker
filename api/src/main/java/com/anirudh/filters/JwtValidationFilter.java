@@ -2,13 +2,16 @@ package com.anirudh.filters;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.cache.CacheProperties.Redis;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.anirudh.service.TokenBlacklistService;
 import com.anirudh.token.JwtAuthenticationToken;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -16,8 +19,9 @@ import jakarta.servlet.http.*;
 public class JwtValidationFilter extends OncePerRequestFilter {
     
     private final AuthenticationManager authenticationManager;
-
-    public JwtValidationFilter(AuthenticationManager authenticationManager){
+    private final TokenBlacklistService tokenBlacklistService;
+    public JwtValidationFilter(AuthenticationManager authenticationManager, TokenBlacklistService tokenBlacklistService) {
+        this.tokenBlacklistService = tokenBlacklistService;
         this.authenticationManager=authenticationManager;
     }
 
@@ -30,7 +34,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         if(token!=null){
             JwtAuthenticationToken authToken= new JwtAuthenticationToken(token);
             Authentication authResult=authenticationManager.authenticate(authToken);
-            if(authResult.isAuthenticated()){
+            if(!tokenBlacklistService.isTokenBlacklisted(token) && authResult.isAuthenticated()){
                 System.out.println("JWT Token is valid for user: " + authResult.getName());
                 SecurityContextHolder.getContext().setAuthentication(authResult);
             }

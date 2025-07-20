@@ -76,5 +76,20 @@ public class JwtUtil {
             return null; // Invalid or expired JWT
         }
     }
+    @SuppressWarnings("deprecation")
+    public long getExpirationFromToken(String token) {
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration()
+                    .getTime();
+        } catch (JwtException e) {
+            System.out.println("Invalid JWT Token: " + e.getMessage());
+            return 0; // Invalid or expired JWT
+        }
+    }
 
 }

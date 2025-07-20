@@ -22,8 +22,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.anirudh.authenticationProviders.JwtAuthenticationProvider;
 import com.anirudh.filters.JwtAuthenticationFilter;
 import com.anirudh.filters.JwtValidationFilter;
+import com.anirudh.service.TokenBlacklistService;
 import com.anirudh.service.UserService;
 import com.anirudh.utils.JwtUtil;
+
+import ch.qos.logback.core.subst.Token;
 
 import java.util.Arrays;
 
@@ -31,9 +34,11 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
      private JwtUtil jwtUtil;
-    private UserService userService;
+     private UserService userService;
+     private final TokenBlacklistService tokenBlacklistService;
 
-    public SecurityConfig( @Lazy JwtUtil jwtUtil,@Lazy UserService userService) {
+    public SecurityConfig( @Lazy JwtUtil jwtUtil,@Lazy UserService userService,TokenBlacklistService tokenBlacklistService) {
+        this.tokenBlacklistService = tokenBlacklistService;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
@@ -61,7 +66,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,AuthenticationManager authenticationManager) throws Exception {
          // Authentication filter responsible for login
         JwtAuthenticationFilter jwtAuthFilter = new JwtAuthenticationFilter(jwtUtil,authenticationManager);
-        JwtValidationFilter jwtValidationFilter=new JwtValidationFilter(authenticationManager);
+        JwtValidationFilter jwtValidationFilter=new JwtValidationFilter(authenticationManager,tokenBlacklistService);
 
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
