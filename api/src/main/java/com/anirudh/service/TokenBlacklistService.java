@@ -24,7 +24,8 @@ public class TokenBlacklistService {
    }    
    public void printToken(String token) {
         String value = redisTemplate.opsForValue().get(token);
-        System.out.println("Token Present in Redis : " + token + " | Value: " + value);
+        System.out.println(" ");
+        System.out.println("Token is Blacked and added in Redis as : " + token + " | Value: " + value);
     }
     public boolean isTokenBlacklisted(String token) {
         System.out.println("Checking if token is blacklisted: " + token);
