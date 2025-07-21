@@ -57,6 +57,8 @@ public class ActivityController {
              activityService.trackUserActivity(userActivity);
             return ResponseEntity.status(HttpStatus.CREATED).body("Activity logged successfully: " + userActivity.getId());
         } catch (Exception e) {
+            System.out.println("Error in Logging activity: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error in Logging activity: " + e.getMessage());
         }
     }

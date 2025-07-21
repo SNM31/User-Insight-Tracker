@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { trackEvent, EventType } from '../utils/tracker';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,7 +25,13 @@ const Login = () => {
       if (token) {
         localStorage.setItem('token', token.replace('Bearer ', ''));
         setIsAuthenticated(true);
+         trackEvent(EventType.LOGIN_SUCCESS, {
+          timestamp: new Date().toISOString().slice(0, 19),
+          deviceinfo: navigator.userAgent,
+        });
+
         navigate('/home');
+        window.location.reload(); // Reload to ensure the app state is updated
       } else {
         setError("No token received");
       }

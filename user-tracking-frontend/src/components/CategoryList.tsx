@@ -1,35 +1,32 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Category } from '../data/categoryData';
-import { trackEvent, EventType } from '../utils/tracker';
+import { useNavigate } from 'react-router-dom';
+import { categoryData } from '../data/categoryData';
 
-type CategoryListProps = {
-  categories: Category[];
-};
+const CategoryList = () => {
+  const navigate = useNavigate();
 
-const CategoryList: React.FC<CategoryListProps> = ({ categories }) => {
+  const handleCategoryClick = (categorySlug: string) => {
+    navigate(`/category/${categorySlug}`);
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-      {categories.map((cat) => (
-        <Link
-          to={`/category/${cat.slug}`}
-          key={cat.slug}
-          onClick={() => trackEvent(EventType.CATEGORY_VIEW, { category: cat.slug })}
-          className="block border rounded overflow-hidden shadow hover:shadow-lg transition duration-200"
-        >
-          <img
-            src={cat.image || 'https://via.placeholder.com/300x200'}
-            alt={cat.name}
-            className="w-full h-48 object-cover"
-          />
-          <div className="p-4">
-            <h3 className="text-lg font-semibold mb-2">{cat.name}</h3>
-            <p className="text-sm text-gray-600">
-              Explore {cat.name} articles and updates.
-            </p>
-          </div>
-        </Link>
-      ))}
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">Select a Category</h2>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {categoryData.map(cat => (
+          <li
+            key={cat.slug}
+            className="border rounded-xl p-2 shadow-md cursor-pointer hover:bg-gray-100"
+            onClick={() => handleCategoryClick(cat.slug)}
+          >
+            <img
+              src={cat.image || "https://via.placeholder.com/200x150?text=Category"}
+              alt={cat.name}
+              className="w-full h-[150px] object-cover rounded-md"
+            />
+            <p className="mt-2 text-lg font-medium text-center">{cat.name}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
