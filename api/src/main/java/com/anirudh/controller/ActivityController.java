@@ -45,9 +45,7 @@ public class ActivityController {
            System.out.println("country_name "+ geoData.getCountryName());
             System.out.println("city "+ geoData.getCity());
 
-            UserActivity userActivity = getUserActivity(userActivityDto, user, clientIp,
-                                        isEventTypeLogin(userActivityDto.getEventType(), clientIp) ?
-                                        geoData : null);
+            UserActivity userActivity = getUserActivity(userActivityDto, user, clientIp, geoData);
         
             if (userActivity.getEventType() == EventType.SESSION_DURATION || userActivity.getEventType() == EventType.TIME_SPENT_ON_SUBCATEGORY) {
             if (userActivity.getDuration() == null || userActivity.getDuration() <= 0) {
@@ -77,9 +75,9 @@ public class ActivityController {
         .build();
         return userActivity;
     }
-    private boolean isEventTypeLogin(String eventType,String clientIp)
-    {
-        return eventType != null && eventType.equalsIgnoreCase("LOGIN_SUCCESS") && clientIp != null;
-    }
+    // private boolean isEventTypeLogin(String eventType,String clientIp)
+    // {
+    //     return eventType != null && eventType.equalsIgnoreCase("LOGIN_SUCCESS") && clientIp != null;
+    // }
 
 }

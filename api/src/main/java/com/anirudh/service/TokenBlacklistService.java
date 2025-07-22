@@ -1,6 +1,7 @@
 package com.anirudh.service;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ public class TokenBlacklistService {
   private final RedisTemplate<String,String> redisTemplate;
   private final JwtUtil jwtUtil;
   
-   public TokenBlacklistService(RedisTemplate<String,String> redisTemplate,JwtUtil jwtUtil) {
+   public TokenBlacklistService(@Qualifier("redisStringTemplate") RedisTemplate<String,String> redisTemplate,JwtUtil jwtUtil) {
          this.redisTemplate = redisTemplate;    
          this.jwtUtil = jwtUtil;
    }

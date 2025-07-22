@@ -31,7 +31,7 @@ const Login = () => {
         });
 
         navigate('/home');
-        window.location.reload(); // Reload to ensure the app state is updated
+        // window.location.reload(); // Reload to ensure the app state is updated
       } else {
         setError("No token received");
       }

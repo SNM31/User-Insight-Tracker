@@ -1,17 +1,17 @@
 import { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { categoryData } from '../data/categoryData';
 import { trackEvent, EventType } from '../utils/tracker';
 
 const ListingPage = () => {
   const { category, sub } = useParams();
+  const navigate = useNavigate();
   const startTimeRef = useRef<number | null>(null);
 
   const currentCategory = categoryData.find(cat => cat.slug === category);
   const currentSubCategory = currentCategory?.subcategories.find(subcat => subcat.slug === sub);
 
   useEffect(() => {
-    // Start session timer
     startTimeRef.current = Date.now();
 
     return () => {
@@ -19,19 +19,34 @@ const ListingPage = () => {
         const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
         if (timeSpent > 0) {
           trackEvent(EventType.TIME_SPENT_ON_SUBCATEGORY, {
-            category,
-            subcategory: sub,
+            category: currentCategory?.name || category,
+            subcategory: currentSubCategory?.name || sub,
             timeSpent,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toISOString(), // ✅ ISO string
           });
         }
       }
     };
   }, [category, sub]);
 
+  const goToHome = () => {
+    navigate('/home');
+  };
+
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">{currentSubCategory?.name} Articles</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">
+          {currentSubCategory?.name} Articles
+        </h2>
+        <button
+          onClick={goToHome}
+          className="text-blue-600 hover:underline text-sm"
+        >
+          ← Back to Home
+        </button>
+      </div>
+
       <p className="text-gray-700 mb-4">{currentSubCategory?.description}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

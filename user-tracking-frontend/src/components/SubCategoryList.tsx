@@ -10,30 +10,33 @@ const SubCategoryList = () => {
   const currentCategory = categoryData.find(cat => cat.slug === category);
   const subcategories = currentCategory?.subcategories || [];
 
-  // 🔹 Track CATEGORY_VIEW on mount
+  // ✅ Track CATEGORY_VIEW on mount with subcategory=null
   const hasTrackedCategoryView = useRef(false);
   useEffect(() => {
     if (category && !hasTrackedCategoryView.current) {
       hasTrackedCategoryView.current = true;
-      trackEvent(EventType.CATEGORY_VIEW, { category });
+      trackEvent(EventType.CATEGORY_VIEW, {
+        category,
+        subcategory: null, // explicitly set subcategory to null
+      });
     }
   }, [category]);
 
-  // 🔹 Track SUBCATEGORY_VIEW only once per page mount
-  const hasTrackedSubcategoryView = useRef(false);
-  useEffect(() => {
-    if (category && !hasTrackedSubcategoryView.current) {
-      hasTrackedSubcategoryView.current = true;
-      trackEvent(EventType.SUBCATEGORY_VIEW, { category });
-    }
-  }, [category]);
+  // ❌ Removed: automatic SUBCATEGORY_VIEW loop
 
-  // 🔹 Track CONTENT_OPENED only once per subcategory
+  // ✅ Track SUBCATEGORY_VIEW & CONTENT_OPENED only on user click
   const openedSetRef = useRef<Set<string>>(new Set());
 
   const handleSubcategoryClick = (subSlug: string) => {
+    // SUBCATEGORY_VIEW (once per subcategory)
     if (!openedSetRef.current.has(subSlug)) {
       openedSetRef.current.add(subSlug);
+
+      trackEvent(EventType.SUBCATEGORY_VIEW, {
+        category,
+        subcategory: subSlug,
+      });
+
       trackEvent(EventType.CONTENT_OPENED, {
         category,
         subcategory: subSlug,
