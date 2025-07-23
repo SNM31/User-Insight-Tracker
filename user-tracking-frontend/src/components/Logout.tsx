@@ -11,10 +11,10 @@ const LogoutButton: React.FC = () => {
 
     if (loginTime) {
       const durationInSeconds = Math.floor((logoutTime - parseInt(loginTime)) / 1000);
-      trackEvent(EventType.SESSION_DURATION, { durationInSeconds });
+      trackEvent(EventType.SESSION_DURATION, { duration:durationInSeconds });
     }
 
-    trackEvent(EventType.LOGOUT, { timestamp: logoutTime });
+    trackEvent(EventType.LOGOUT, { timestamp: new Date(logoutTime).toISOString() });
 
     const token = localStorage.getItem('token');
     if (token) {
@@ -26,7 +26,7 @@ const LogoutButton: React.FC = () => {
         },
       });
     }
-
+    localStorage.removeItem('sessionId');
     localStorage.removeItem('token');
     localStorage.removeItem('loginTime');
     window.location.reload();

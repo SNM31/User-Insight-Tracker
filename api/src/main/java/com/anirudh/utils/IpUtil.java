@@ -22,11 +22,11 @@ public class IpUtil {
     private RedisTemplate<String, Object> redisObjectTemplate;
 
     private static final List<String> MOCK_IPS = List.of(
-        "8.8.8.8",      // USA (Google)
-        "1.1.1.1",      // Australia (Cloudflare)
-        "185.60.216.35",// Ireland (Facebook)
-        "203.0.113.1",  // Reserved for documentation (simulated Asia)
-        "5.255.255.5"   // Russia (Yandex)
+        // "8.8.8.8",      // USA (Google)
+        "1.1.1.1"      // Australia (Cloudflare)
+        // "185.60.216.35",// Ireland (Facebook)
+        // "203.0.113.1",  // Reserved for documentation (simulated Asia)
+        // "5.255.255.5"   // Russia (Yandex)
     );
      private static final Random random = new Random();
 
@@ -35,6 +35,7 @@ public class IpUtil {
     
        String ip= (header == null || header.isEmpty()) ? request.getRemoteAddr() : header.split(",")[0];
             // ⚠️ For local testing only – replace with dummy IP (e.g., Google's public IP)
+            
     if ("0:0:0:0:0:0:0:1".equals(ip) || "127.0.0.1".equals(ip)) {
         return MOCK_IPS.get(random.nextInt(MOCK_IPS.size()));
     }

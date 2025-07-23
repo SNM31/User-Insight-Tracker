@@ -21,7 +21,7 @@ const ListingPage = () => {
           trackEvent(EventType.TIME_SPENT_ON_SUBCATEGORY, {
             category: currentCategory?.name || category,
             subcategory: currentSubCategory?.name || sub,
-            timeSpent,
+            duration: timeSpent,
             timestamp: new Date().toISOString(), // ✅ ISO string
           });
         }

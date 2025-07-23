@@ -14,6 +14,7 @@ export const trackEvent = async (
 ) => {
   const payload = {
     eventType,
+    sessionId: localStorage.getItem("sessionId") || "",
     timestamp: new Date().toISOString(),
     deviceinfo: `${navigator.platform} - ${navigator.userAgent}`,
     ...data,

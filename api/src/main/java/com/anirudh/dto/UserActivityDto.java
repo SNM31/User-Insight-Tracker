@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class UserActivityDto {
 private String eventType;
+private String sessionId;
 private String category;
 private String subcategory;
 private Integer duration;

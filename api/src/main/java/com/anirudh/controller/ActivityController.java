@@ -63,6 +63,7 @@ public class ActivityController {
     private UserActivity getUserActivity(UserActivityDto userActivityDto, User user, String clientIp, GeoData geoData) {
         UserActivity userActivity=UserActivity.builder()
         .userId(user.getId())
+        .sessionId(userActivityDto.getSessionId())
         .eventType(EventType.valueOf(userActivityDto.getEventType().toUpperCase()))
         .category(userActivityDto.getCategory())
         .subcategory(userActivityDto.getSubcategory())

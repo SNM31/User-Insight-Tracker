@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { trackEvent, EventType } from '../utils/tracker';
+import {v4 as uuidv4} from 'uuid';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,9 +21,11 @@ const Login = () => {
         username,
         password,
       });
-
+      
       const token = response.headers['Authorization'] || response.headers['authorization'];
       if (token) {
+        const sessionId = uuidv4(); // Generate a unique session ID
+        localStorage.setItem('sessionId', sessionId); // Store session ID in localStorage
         localStorage.setItem('token', token.replace('Bearer ', ''));
         setIsAuthenticated(true);
          trackEvent(EventType.LOGIN_SUCCESS, {
