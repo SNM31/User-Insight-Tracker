@@ -24,6 +24,6 @@ public class AnalyticsController {
     @GetMapping("/metrics")
     @PreAuthorize("hasRole('ADMIN')")
     public AnalyticsResponse getMetrics(@ModelAttribute MetricsFilterRequest filterRequest) {
-        return analyticsService.getMetrics(filterRequest);
+        return analyticsService.getAnalytics(filterRequest);
     }
 }

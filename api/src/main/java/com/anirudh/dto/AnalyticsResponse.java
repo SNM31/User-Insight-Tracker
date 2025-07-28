@@ -1,24 +1,30 @@
 package com.anirudh.dto;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
+import java.time.LocalDate;
+import java.util.*;
 
-import lombok.Builder;
-import lombok.Data;
-
-@Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
+@Data
 public class AnalyticsResponse {
-     private int totalUsers;
-    private int activeUsers;
-    private double averageSessionPerUserPerDay;
-    private double averageSessionDuration; // seconds
+
+    // Common
+    private Integer totalSessions;
+    private Double averageSessionDuration; // in seconds
     private Map<String, Long> topCategoriesVisited;
     private Map<String, Long> topSubcategoriesVisited;
-
-    // General metrics
-    private int totalSessions;
-    private double averageSessionsPerDay;
     private Map<String, Long> deviceTypeDistribution;
+    private Map<Integer, Long> loginActivityByHour;
+
+    // General-only
+    private Integer totalUsers;
+    private Integer activeUsers;
+    private Double averageSessionsPerDay;
     private Map<String, Long> regionDistribution;
     private Map<String, Long> countryDistribution;
-    private Map<Integer, Long> popularLoginHours;
+
+    // User-specific-only
+    private Long totalTimeSpent;          // total time spent (sum of durations)
+    private LocalDate lastActiveDate;
 }
