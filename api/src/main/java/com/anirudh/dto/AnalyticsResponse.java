@@ -21,7 +21,7 @@ public class AnalyticsResponse {
     private Integer totalUsers;
     private Integer activeUsers;
     private Double averageSessionsPerDay;
-    private Map<String, Long> regionDistribution;
+    // private Map<String, Long> regionDistribution;
     private Map<String, Long> countryDistribution;
 
     // User-specific-only
