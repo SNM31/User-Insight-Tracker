@@ -23,10 +23,6 @@ public class UserActivitySpecifications {
                 predicates.add(cb.equal(root.get("country"), request.getCountry()));
             }
 
-            // if (request.getRegion() != null) {
-            //     predicates.add(cb.equal(root.get("region"), request.getRegion()));
-            // }
-
             if (request.getCity() != null) {
                 predicates.add(cb.equal(root.get("city"), request.getCity()));
             }
