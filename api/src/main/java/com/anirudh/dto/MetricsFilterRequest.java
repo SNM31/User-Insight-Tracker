@@ -20,8 +20,7 @@ public class MetricsFilterRequest {
     // Filter by session or group metrics per session
     private String sessionId;
 
-    // // Optional region-level grouping
-    // private String region;
+    
 
     // Used for date range filtering (start and end)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
