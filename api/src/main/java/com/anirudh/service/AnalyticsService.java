@@ -32,6 +32,7 @@ public class AnalyticsService {
 
     // =================== User Profile Metrics ===================
 
+    
     private AnalyticsResponse buildUserAnalytics(List<UserActivity> events) {
         Set<String> sessionIds = getUniqueSessionIds(events);
         long totalTimeSpent = getTotalDuration(events);
