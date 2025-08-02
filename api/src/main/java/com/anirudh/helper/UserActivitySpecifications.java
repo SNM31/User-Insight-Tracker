@@ -38,7 +38,6 @@ public class UserActivitySpecifications {
             if (request.getEndDate() != null) {
                 predicates.add(cb.lessThan(root.get("timestamp"), request.getEndDate().plusDays(1).atStartOfDay()));
             }
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
