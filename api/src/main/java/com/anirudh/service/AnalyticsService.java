@@ -143,6 +143,6 @@ public class AnalyticsService {
                 .map(groupingKey)
                 .filter(Objects::nonNull)
                 .map(Object::toString)
-                 .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+                .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
     }
 }
