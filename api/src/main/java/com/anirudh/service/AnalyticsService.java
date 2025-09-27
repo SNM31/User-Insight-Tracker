@@ -18,6 +18,7 @@ import static com.anirudh.helper.UserActivitySpecifications.withFilters;
 public class AnalyticsService {
 
     private final UserActivityRepository repository;
+    private static final int ACTIVE_USER_WINDOW_MINUTES = 5;
 
     public AnalyticsService(UserActivityRepository repository) {
         this.repository = repository;
@@ -129,13 +130,13 @@ public class AnalyticsService {
     }
 
     private int countActiveUsers(List<UserActivity> events) {
+        final LocalDateTime cutoff = LocalDateTime.now().minusMinutes(ACTIVE_USER_WINDOW_MINUTES);
         return (int) events.stream()
-                .filter(e -> e.getEventType() == EventType.LOGIN_SUCCESS ||
-                             e.getEventType() == EventType.SESSION_DURATION)
+                .filter(e -> e.getTimestamp() != null && e.getTimestamp().isAfter(cutoff))
                 .map(UserActivity::getUserId)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toSet())
-                .size();
+                .distinct()
+                .count();
     }
 
     private <T> Map<String, Long> groupCount(List<UserActivity> events, java.util.function.Function<UserActivity, T> groupingKey) {
