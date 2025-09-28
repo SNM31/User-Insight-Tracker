@@ -39,15 +39,18 @@ public class AnalyticsService {
         long totalTimeSpent = getTotalDuration(events);
         double avgSessionDuration = getAverageSessionDuration(sessionIds, totalTimeSpent);
         LocalDate lastActiveDate = getLastActiveDate(events);
+        Map<Long,List<UserActivity>> categoriesVisited=events
+                                               .stream()
+                                               .collect((Collectors.groupingBy(UserActivity::getUserId)));
 
         return AnalyticsResponse.builder()
                 .totalSessions(sessionIds.size())
                 .totalTimeSpent(totalTimeSpent)
                 .averageSessionDuration(avgSessionDuration)
                 .lastActiveDate(lastActiveDate)
-                .topCategoriesVisited(groupCount(events, UserActivity::getCategory))
-                .topSubcategoriesVisited(groupCount(events, UserActivity::getSubcategory))
-                .deviceTypeDistribution(groupCount(events, UserActivity::getDeviceType))
+                .topCategoriesVisited(groupCount(categoriesVisited, UserActivity::getCategory))
+                .topSubcategoriesVisited(groupCount(categoriesVisited, UserActivity::getSubcategory))
+                .deviceTypeDistribution(groupCount(categoriesVisited, UserActivity::getDeviceType))
                 .loginActivityByHour(getLoginActivityByHour(events))
                 .build();
     }
@@ -61,6 +64,9 @@ public class AnalyticsService {
         double avgSessionDuration = getAverageSessionDuration(sessionIds, totalTimeSpent);
         double avgSessionsPerDay = getAverageSessionsPerDay(sessionIds.size(), filter);
         int activeUsers = countActiveUsers(events);
+         Map<Long,List<UserActivity>> categoriesVisited=events
+                                               .stream()
+                                               .collect((Collectors.groupingBy(UserActivity::getUserId)));
 
         return AnalyticsResponse.builder()
                 .totalUsers(userIds.size())
@@ -68,11 +74,11 @@ public class AnalyticsService {
                 .totalSessions(sessionIds.size())
                 .averageSessionDuration(avgSessionDuration)
                 .averageSessionsPerDay(avgSessionsPerDay)
-                .topCategoriesVisited(groupCount(events, UserActivity::getCategory))
-                .topSubcategoriesVisited(groupCount(events, UserActivity::getSubcategory))
-                .deviceTypeDistribution(groupCount(events, UserActivity::getDeviceType))
+                .topCategoriesVisited(groupCount(categoriesVisited, UserActivity::getCategory))
+                .topSubcategoriesVisited(groupCount(categoriesVisited, UserActivity::getSubcategory))
+                .deviceTypeDistribution(groupCount(categoriesVisited, UserActivity::getDeviceType))
                 // .regionDistribution(groupCount(events, UserActivity::getRegion))
-                .countryDistribution(groupCount(events, UserActivity::getCountry))
+                .countryDistribution(groupCount(categoriesVisited, UserActivity::getCountry))
                 .loginActivityByHour(getLoginActivityByHour(events))
                 .build();
     }
@@ -94,11 +100,12 @@ public class AnalyticsService {
     }
 
     private long getTotalDuration(List<UserActivity> events) {
-        return events.stream()
-                .map(UserActivity::getDuration)
-                .filter(Objects::nonNull)
-                .mapToLong(Integer::intValue)
-                .sum();
+    return events.stream()
+            .filter(event -> event.getEventType() == EventType.SESSION_DURATION)
+            .map(UserActivity::getDuration)
+            .filter(Objects::nonNull)
+            .mapToLong(Integer::intValue)
+            .sum();
     }
 
     private double getAverageSessionDuration(Set<String> sessionIds, long totalDuration) {
@@ -139,11 +146,17 @@ public class AnalyticsService {
                 .count();
     }
 
-    private <T> Map<String, Long> groupCount(List<UserActivity> events, java.util.function.Function<UserActivity, T> groupingKey) {
-        return events.stream()
-                .map(groupingKey)
-                .filter(Objects::nonNull)
-                .map(Object::toString)
-                .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
-    }
+    private <T> Map<String, Long> groupCount(Map<Long, List<UserActivity>> events, 
+                                       java.util.function.Function<UserActivity, T> groupingKey) {
+    
+    return events.values().stream()
+                    .flatMap(userActivityList -> userActivityList.stream()
+                    .map(groupingKey)
+                    .filter(Objects::nonNull)
+                    .distinct())
+                    .map(Object::toString)
+                    .map(String::toLowerCase)
+                    .distinct()
+                    .collect(Collectors.groupingBy(key -> key, Collectors.counting()));
+}
 }

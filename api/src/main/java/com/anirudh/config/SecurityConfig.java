@@ -75,7 +75,7 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions(frameOptions->frameOptions.disable())) // Allow frames from the same origin (useful for H2 console)
             .csrf(csrf -> csrf.disable()) // Disable CSRF protection for simplicity; enable in production!
             .authorizeHttpRequests(authz -> authz
-                    .requestMatchers("/h2-console/**", "/api/auth/register").permitAll() // Allow access to H2 console and authentication endpoints without authentication
+                    .requestMatchers("/h2-console/**", "/api/auth/register","api/auth/register/admin").permitAll() // Allow access to H2 console and authentication endpoints without authentication
                     .anyRequest().authenticated() // All other requests require authentication
             )
             .sessionManagement(session -> session
