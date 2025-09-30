@@ -42,7 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Authentication authentication= authenticationManager.authenticate(autToken);
         if(authentication.isAuthenticated()){
             System.out.println("User authenticated successfully: " + user.getUsername());
-            String token = jwtUtil.generateToken(user.getUsername());
+            String role=authentication.getAuthorities().iterator().next().getAuthority();
+            System.out.println("User role: " + role);
+            String token = jwtUtil.generateToken(user.getUsername(),role);
             response.setHeader("Authorization", "Bearer " + token);
             // SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {

@@ -11,6 +11,7 @@ import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 
 @Component
 public class JwtUtil {
@@ -27,9 +28,12 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
     @SuppressWarnings("deprecation")
-    public String generateToken(String userName){
+    public String generateToken(String userName,String role){
+        HashMap<String,String> claims=new HashMap<>();
+        claims.put("role", role);
         return Jwts.builder()
                 .setSubject(userName)
+                .addClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpiration))
                 .signWith(secretKey, SignatureAlgorithm.HS256)

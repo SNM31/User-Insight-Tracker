@@ -29,7 +29,7 @@ public class User implements UserDetails{
     public Collection<? extends GrantedAuthority> getAuthorities() {
           Set<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority(role));
-        authorities.add(new SimpleGrantedAuthority(this.username));
+        // authorities.add(new SimpleGrantedAuthority(this.username));
       
         return authorities;
     }
