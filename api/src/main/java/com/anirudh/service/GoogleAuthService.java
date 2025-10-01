@@ -33,9 +33,9 @@ public class GoogleAuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public String authenticate(String idTokenString) throws GeneralSecurityException, IOException {
+    public String authenticate(String token) throws GeneralSecurityException, IOException {
         // 1. Verify the Google ID token
-        GoogleIdToken idToken = googleIdTokenVerifier.verify(idTokenString);
+        GoogleIdToken idToken = googleIdTokenVerifier.verify(token);
         if (idToken == null) {
             throw new IllegalArgumentException("Invalid Google Token");
         }

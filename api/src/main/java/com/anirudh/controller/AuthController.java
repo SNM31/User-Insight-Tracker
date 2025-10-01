@@ -2,6 +2,7 @@ package com.anirudh.controller;
 
 import com.anirudh.dto.AuthRequest;
 import com.anirudh.dto.AuthResponse;
+import com.anirudh.dto.GoogleAuthToken;
 import com.anirudh.model.User;
 import com.anirudh.service.GoogleAuthService;
 import com.anirudh.service.TokenBlacklistService;
@@ -109,41 +110,46 @@ public class AuthController {
                     .body("Internal Server Error: " + e.getMessage());
          }
     }
-     @PostMapping("/register/admin")
-    public ResponseEntity<AuthResponse> adminRegister(@RequestBody AuthRequest authRequest)
-    {
-        try {
-            User user = User.builder()
-                    .username(authRequest.getUsername())
-                    .password(authRequest.getPassword())
-                    .role("ROLE_ADMIN") // Default role, can be modified as needed
-                    .build();
-            System.out.println(user.getUsername());
-            System.out.println(user.getPassword());
-            System.out.println(user.getRole());
-            AuthResponse response = userService.registerWithUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (RuntimeException e) {
+    //  @PostMapping("/register/admin")
+    // public ResponseEntity<AuthResponse> adminRegister(@RequestBody AuthRequest authRequest)
+    // {
+    //     try {
+    //         User user = User.builder()
+    //                 .username(authRequest.getUsername())
+    //                 .password(authRequest.getPassword())
+    //                 .role("ROLE_ADMIN") // Default role, can be modified as needed
+    //                 .build();
+    //         System.out.println(user.getUsername());
+    //         System.out.println(user.getPassword());
+    //         System.out.println(user.getRole());
+    //         AuthResponse response = userService.registerWithUser(user);
+    //         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    //     } catch (RuntimeException e) {
 
-             AuthResponse authResponse=AuthResponse.builder()
-                    .message(e.getMessage())
-                    .statusCode(HttpStatus.UNAUTHORIZED.value())
-                    .build();
+    //          AuthResponse authResponse=AuthResponse.builder()
+    //                 .message(e.getMessage())
+    //                 .statusCode(HttpStatus.UNAUTHORIZED.value())
+    //                 .build();
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(authResponse);
-        }
-     }
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    //                 .body(authResponse);
+    //     }
+    //  }
      @PostMapping("google/login")
-     public ResponseEntity<AuthResponse> googleLogin(@RequestBody String idToken) {
+     public ResponseEntity<?> googleLogin(@RequestBody GoogleAuthToken googleAuthToken) {
          try {
-            String token = googleAuthService.authenticate(tokenDto.getToken());
-            return ResponseEntity.ok(new AuthResponse(token));
+            String token = googleAuthService.authenticate(googleAuthToken.getToken());
+            return ResponseEntity.ok( AuthResponse.builder()
+                    .token(token)
+                    .message("Google login successful")
+                    .statusCode(HttpStatus.OK.value())
+                    .build());
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<AuthResponse>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<AuthResponse>("Authentication failed due to an internal error.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Authentication failed due to an internal error.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
                         
 }

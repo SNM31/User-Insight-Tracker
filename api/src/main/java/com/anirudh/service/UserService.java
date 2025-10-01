@@ -44,7 +44,7 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Incorrect password. Please try again.");
         }
 
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername(),user.getRole());
         return new AuthResponse(token, user.getUsername(), "Login successful", HttpStatus.OK.value());
     }
 

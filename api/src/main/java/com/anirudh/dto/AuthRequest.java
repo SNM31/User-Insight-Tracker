@@ -5,5 +5,6 @@ import lombok.Data;
 public class AuthRequest {
     private String username; // Username entered by the user during login
     private String password; // Password entered by the user during login
+    private String email;
     // private String role;
 }
