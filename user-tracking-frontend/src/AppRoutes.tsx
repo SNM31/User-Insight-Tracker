@@ -6,7 +6,7 @@ import Register from './pages/RegisterPage';
 import Home from './pages/HomePage';
 import SubCategoryList from './components/SubCategoryList';
 import ListingPage from './components/ListingPage';
-import AdminRegister from './pages/AdminRegister';
+// import AdminRegister from './pages/AdminRegister';
 import AdminLogin from './pages/AdminLogin';
 
 const AppRoutes = () => {
@@ -40,7 +40,7 @@ const AppRoutes = () => {
         path="/dashboard/login"
         element={isAdminAuthenticated ? <Navigate to="/login" /> : <AdminLogin />  }
       />
-       <Route path="/register/admin" element={<AdminRegister />} />
+       {/* <Route path="/register/admin" element={<AdminRegister />} /> */}
     </Routes>
   );
 };

@@ -5,22 +5,41 @@ import { useNavigate } from 'react-router-dom';
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(''); // State for the new email field
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  // Helper function to validate email format
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(''); // Clear previous errors
+
+    // Client-side validation for the email
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address.');
+      return; // Stop the submission if email is invalid
+    }
+
     try {
+      // Include the email in the data sent to the backend
       await axios.post('http://localhost:8080/api/auth/register', {
         username,
+        email,
         password,
       });
       // Optional reset
       setUsername('');
+      setEmail('');
       setPassword('');
       navigate('/login');
     } catch (err) {
-      setError('Registration failed');
+      // You can add more specific error handling here based on the API response
+      setError('Registration failed. The username or email may already be taken.');
     }
   };
 
@@ -44,6 +63,15 @@ const RegisterPage = () => {
           className="p-2 border border-gray-300 rounded"
           required
         />
+        {/* New input field for email */}
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          className="p-2 border border-gray-300 rounded"
+          required
+        />
         <input
           type="password"
           placeholder="Password"
@@ -58,7 +86,7 @@ const RegisterPage = () => {
         >
           Register
         </button>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
       </form>
     </div>
   );

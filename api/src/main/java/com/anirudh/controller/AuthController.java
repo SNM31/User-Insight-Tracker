@@ -3,6 +3,7 @@ package com.anirudh.controller;
 import com.anirudh.dto.AuthRequest;
 import com.anirudh.dto.AuthResponse;
 import com.anirudh.model.User;
+import com.anirudh.service.GoogleAuthService;
 import com.anirudh.service.TokenBlacklistService;
 import com.anirudh.service.UserService;
 import com.anirudh.utils.JwtUtil;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.http.HttpRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,6 +39,10 @@ public class AuthController {
     private MapperUtil mapperUtil;
     @Autowired
     private TokenBlacklistService tokenBlacklistService;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String googleClientId;
+    @Autowired
+    private GoogleAuthService googleAuthService;
 
     // @PostMapping("/login")
     // public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest)
@@ -65,11 +71,13 @@ public class AuthController {
             User user = User.builder()
                     .username(authRequest.getUsername())
                     .password(authRequest.getPassword())
+                    .email(authRequest.getEmail())
                     .role("ROLE_USER") // Default role, can be modified as needed
                     .build();
             System.out.println(user.getUsername());
             System.out.println(user.getPassword());
             System.out.println(user.getRole());
+            System.out.println(user.getEmail());
             AuthResponse response = userService.registerWithUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
@@ -126,4 +134,16 @@ public class AuthController {
                     .body(authResponse);
         }
      }
+     @PostMapping("google/login")
+     public ResponseEntity<AuthResponse> googleLogin(@RequestBody String idToken) {
+         try {
+            String token = googleAuthService.authenticate(tokenDto.getToken());
+            return ResponseEntity.ok(new AuthResponse(token));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<AuthResponse>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<AuthResponse>("Authentication failed due to an internal error.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+                        
 }
