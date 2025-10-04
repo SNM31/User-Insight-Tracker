@@ -17,15 +17,19 @@ import java.util.HashMap;
 public class JwtUtil {
     @Value("${jwt.secret}")  
     private String jwtSecret;
+    @Value("${jwt.invitation.secret}")
+    private String jwtInvitationSecret;
 
     @Value("${jwt.expiration}") 
     private long jwtExpiration;
 
     private Key secretKey;
+    private Key invitationSecretKey;
 
     @PostConstruct
     public void init() {
         this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        this.invitationSecretKey = Keys.hmacShaKeyFor(jwtInvitationSecret.getBytes(StandardCharsets.UTF_8));
     }
     @SuppressWarnings("deprecation")
     public String generateToken(String userName,String role){
@@ -96,22 +100,39 @@ public class JwtUtil {
         }
     }
     @SuppressWarnings("deprecation")
-    public String generateInvitationToken(String userName,String email,String role)
+    public String generateInvitationToken(String email,String role)
     {
         try{
            HashMap<String,String> claims=new HashMap<>();
            claims.put("role", role);
            claims.put("scope", "Invite");
            return Jwts.builder()
-                .setSubject(userName)
+                .setSubject(email)
                 .addClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpiration))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .signWith(invitationSecretKey, SignatureAlgorithm.HS256)
                 .compact();
         }catch(Exception e){
-         System.out.println("Invalid JWT Token: " + e.getMessage());
-         return "Not Able to Create token";
+         throw new RuntimeException("Could not create invitation token", e);
+        }
+    }
+      @SuppressWarnings("deprecation")
+     public String validateAndExtractEmail(String token) {
+        try {
+            Claims claims= Jwts.parser()
+                    .setSigningKey(invitationSecretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            String scope=claims.get("scope",String.class);
+            if(scope==null || !scope.equals("Invite"))
+            {
+                throw new RuntimeException("Invalid scope for invitation token");
+            }
+            return claims.getSubject();        
+        } catch (JwtException e) {
+            throw new RuntimeException("Could not validate Token", e);
         }
     }
 
