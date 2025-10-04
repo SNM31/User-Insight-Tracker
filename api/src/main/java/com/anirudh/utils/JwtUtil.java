@@ -95,5 +95,24 @@ public class JwtUtil {
             return 0; // Invalid or expired JWT
         }
     }
+    @SuppressWarnings("deprecation")
+    public String generateInvitationToken(String userName,String email,String role)
+    {
+        try{
+           HashMap<String,String> claims=new HashMap<>();
+           claims.put("role", role);
+           claims.put("scope", "Invite");
+           return Jwts.builder()
+                .setSubject(userName)
+                .addClaims(claims)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpiration))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+        }catch(Exception e){
+         System.out.println("Invalid JWT Token: " + e.getMessage());
+         return "Not Able to Create token";
+        }
+    }
 
 }

@@ -21,8 +21,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.anirudh.authenticationProviders.JwtAuthenticationProvider;
-import com.anirudh.filters.JwtAuthenticationFilter;
-import com.anirudh.filters.JwtValidationFilter;
+import com.anirudh.filters.*;
 import com.anirudh.service.TokenBlacklistService;
 import com.anirudh.service.UserService;
 import com.anirudh.utils.JwtUtil;
