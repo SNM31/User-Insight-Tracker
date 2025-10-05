@@ -45,17 +45,22 @@ public class InvitationController {
     public ResponseEntity<String> verifyInviationToken(@RequestParam String invitationToken)
     {
         try{
-            boolean verified=invitationService.verifyInviteToken(invitationToken);
-            if(verified)
-            {
-                return ResponseEntity.ok("Token verofied and is correct");
-            }
-            else{
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                body("Invalid Token or Expired");
-            }
+            invitationService.verifyInviteToken(invitationToken);
+            return ResponseEntity.ok("Token verified and is correct");
         }
-        catch(Exception e){
+        catch(IllegalArgumentException e){
+             e.printStackTrace();
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Empty token or null " );
+        }
+        catch(RuntimeException e)
+        {
+             e.printStackTrace();
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Token not Found or Expired " );
+        }
+        catch(Exception e)
+        {
              e.printStackTrace();
             return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Internal Server Error: " );
