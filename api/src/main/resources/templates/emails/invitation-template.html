@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Invitation to User Insight Tracker</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 30px;">
+
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+        <h2 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+            You're Invited!
+        </h2>
+
+        <p style="color: #555; line-height: 1.6;">
+            You have been invited to join <strong>User Insight Tracker</strong>. To accept your invitation, please click the button below.
+        </p>
+
+        <a th:href="${invitationLink}"
+           style="background-color: #007bff; color: #ffffff; padding: 12px 25px; margin: 20px 0; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Join Now
+        </a>
+
+        <p style="color: #888; font-size: 12px; margin-top: 20px;">
+            This invitation link is valid for 24 hours.
+        </p>
+
+    </div>
+
+</body>
+</html>
