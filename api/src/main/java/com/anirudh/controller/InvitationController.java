@@ -45,8 +45,8 @@ public class InvitationController {
     public ResponseEntity<String> verifyInviationToken(@RequestParam String invitationToken)
     {
         try{
-            invitationService.verifyInviteToken(invitationToken);
-            return ResponseEntity.ok("Token verified and is correct");
+           String email= invitationService.verifyInviteToken(invitationToken);
+            return ResponseEntity.ok(email);
         }
         catch(IllegalArgumentException e){
              e.printStackTrace();

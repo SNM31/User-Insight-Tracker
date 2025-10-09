@@ -40,7 +40,7 @@ public class InvitationService {
                 e.printStackTrace();
             }
     }
-    public void verifyInviteToken(String token)
+    public String verifyInviteToken(String token)
     {
       if (token == null || token.trim().isEmpty()) {
         throw new IllegalArgumentException("Invitation token cannot be null or empty.");
@@ -56,5 +56,6 @@ public class InvitationService {
             // (like a missing "scope" claim).
             throw new RuntimeException("Token is not a valid invitation token.");
         }
+        return email;
     }
 }

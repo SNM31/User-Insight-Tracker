@@ -1,7 +1,7 @@
 // src/pages/JoinPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 const JoinPage = () => {
@@ -23,8 +23,8 @@ const JoinPage = () => {
 
     const verifyToken = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/join/verify?invitationToken=${invitationToken}`);
-        setInvitedEmail(response.data.email); // Assume the API returns the invited email on success
+        const response = await axios.get(`http://localhost:8080/api/invite/join/verify?invitationToken=${invitationToken}`);
+        setInvitedEmail(response.data); // Assume the API returns the invited email on success
       } catch (err) {
         setError('This invitation is invalid or has expired.');
       } finally {
