@@ -68,10 +68,13 @@ const JoinPage = () => {
       <h1>You're invited to join!</h1>
       <p>Please sign in with your Google account ({invitedEmail}) to continue.</p>
       
-      <GoogleLogin
-        onSuccess={handleGoogleSuccess}
-        onError={() => setError('Google login failed.')}
-      />
+    <GoogleLogin
+     onSuccess={handleGoogleSuccess}
+     onError={() => setError('Google login failed.')}
+     theme="outline" // or "filled_blue"
+     size="large"    // or "medium", "small"
+     text="continue_with" // or "signin_with"
+    />
     </div>
   );
 };

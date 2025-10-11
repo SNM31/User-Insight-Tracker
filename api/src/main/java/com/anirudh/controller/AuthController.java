@@ -110,31 +110,7 @@ public class AuthController {
                     .body("Internal Server Error: " + e.getMessage());
          }
     }
-    //  @PostMapping("/register/admin")
-    // public ResponseEntity<AuthResponse> adminRegister(@RequestBody AuthRequest authRequest)
-    // {
-    //     try {
-    //         User user = User.builder()
-    //                 .username(authRequest.getUsername())
-    //                 .password(authRequest.getPassword())
-    //                 .role("ROLE_ADMIN") // Default role, can be modified as needed
-    //                 .build();
-    //         System.out.println(user.getUsername());
-    //         System.out.println(user.getPassword());
-    //         System.out.println(user.getRole());
-    //         AuthResponse response = userService.registerWithUser(user);
-    //         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    //     } catch (RuntimeException e) {
-
-    //          AuthResponse authResponse=AuthResponse.builder()
-    //                 .message(e.getMessage())
-    //                 .statusCode(HttpStatus.UNAUTHORIZED.value())
-    //                 .build();
-
-    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-    //                 .body(authResponse);
-    //     }
-    //  }
+    
      @PostMapping("google/login")
      public ResponseEntity<?> googleLogin(@RequestBody GoogleAuthToken googleAuthToken) {
          try {

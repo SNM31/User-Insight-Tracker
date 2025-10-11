@@ -33,7 +33,7 @@ public class GoogleAuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public String authenticate(String token) throws GeneralSecurityException, IOException {
+    public String authenticate(String token,String userEmailId) throws GeneralSecurityException, IOException {
         // 1. Verify the Google ID token
         GoogleIdToken idToken = googleIdTokenVerifier.verify(token);
         if (idToken == null) {
@@ -44,6 +44,10 @@ public class GoogleAuthService {
         GoogleIdToken.Payload payload = idToken.getPayload();
         String email = payload.getEmail();
         String name = (String) payload.get("name");
+        if(!email.equals(userEmailId))
+        {
+            throw new IllegalArgumentException("Google account email does not match the invited email.");
+        }
 
         // 3. Find or create user
         User user = findOrCreateUser(email, name);
