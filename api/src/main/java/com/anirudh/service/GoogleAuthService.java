@@ -33,31 +33,38 @@ public class GoogleAuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public String authenticate(String token,String userEmailId) throws GeneralSecurityException, IOException {
-        // 1. Verify the Google ID token
+    public String authenticate(String idToken) throws GeneralSecurityException, IOException {
+        User user = verifyAndGetUserFromGoogleToken(idToken);
+
+        List<GrantedAuthority> authorities = user.getAuthorities().stream().collect(Collectors.toList());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
+
+        return jwtUtil.generateDashboardToken(user.getEmail(),user.getRole());
+    }
+
+    public String authenticateForInvitation(String token, String invitedEmail) throws GeneralSecurityException, IOException {
+        User user = verifyAndGetUserFromGoogleToken(token);
+
+        if (!user.getEmail().equalsIgnoreCase(invitedEmail)) {
+            throw new IllegalArgumentException("Google account email does not match the invited email.");
+        }
+
+        List<GrantedAuthority> authorities = user.getAuthorities().stream().collect(Collectors.toList());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
+        
+        return jwtUtil.generateDashboardToken(user.getEmail(),user.getRole());
+    }
+    private User verifyAndGetUserFromGoogleToken(String token) throws GeneralSecurityException, IOException {
         GoogleIdToken idToken = googleIdTokenVerifier.verify(token);
         if (idToken == null) {
             throw new IllegalArgumentException("Invalid Google Token");
         }
 
-        // 2. Extract user info
         GoogleIdToken.Payload payload = idToken.getPayload();
         String email = payload.getEmail();
         String name = (String) payload.get("name");
-        if(!email.equals(userEmailId))
-        {
-            throw new IllegalArgumentException("Google account email does not match the invited email.");
-        }
 
-        // 3. Find or create user
-        User user = findOrCreateUser(email, name);
-
-        // 4. Create Authentication object
-        List<GrantedAuthority> authorities = user.getAuthorities().stream().collect(Collectors.toList());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
-
-        // 5. Generate and return the application's JWT
-        return jwtUtil.generateToken(user.getUsername(), user.getRole());
+        return findOrCreateUser(email, name);
     }
 
     private User findOrCreateUser(String email, String name) {
@@ -68,7 +75,7 @@ public class GoogleAuthService {
                     newUser.setEmail(email);
                     newUser.setUsername(name != null ? name : email);
                     newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-                    newUser.setRole("ROLE_USER");
+                    newUser.setRole("ROLE_ADMIN");
                     return userRepository.save(newUser);
                 });
     }

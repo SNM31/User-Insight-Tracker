@@ -77,7 +77,7 @@ public class InvitationController {
         try{
             String email=invitationService.verifyInviteToken(googleAuthRequest.getInvitationToken());
             System.out.println("Email from invitation token: "+email);
-            googleAuthService.authenticate(googleAuthRequest.getGoogleIdToken(),email);
+            googleAuthService.authenticateForInvitation(googleAuthRequest.getGoogleIdToken(),email);
             return ResponseEntity.ok("Invitation finalized successfully. You can now log in.");
         }
         catch(IllegalArgumentException e){
