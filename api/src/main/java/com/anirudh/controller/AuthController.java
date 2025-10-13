@@ -2,6 +2,7 @@ package com.anirudh.controller;
 
 import com.anirudh.dto.AuthRequest;
 import com.anirudh.dto.AuthResponse;
+import com.anirudh.dto.GoogleAuthRequest;
 import com.anirudh.dto.GoogleAuthToken;
 import com.anirudh.model.User;
 import com.anirudh.service.GoogleAuthService;
@@ -110,7 +111,7 @@ public class AuthController {
                     .body("Internal Server Error: " + e.getMessage());
          }
     }
-    
+
      @PostMapping("google/login")
      public ResponseEntity<?> googleLogin(@RequestBody GoogleAuthToken googleAuthToken) {
          try {

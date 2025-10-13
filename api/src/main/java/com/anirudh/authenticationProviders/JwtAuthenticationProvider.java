@@ -30,6 +30,16 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         UserDetails userDetails = userService.loadUserByUsername(username);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+    public Authentication authenticateDashboardToken(String token) throws AuthenticationException {
+        String email = jwtUtil.validateAndExtractEmailForDashboard(token);
+        System.out.println("Email extracted from JWT: " + email);
+        if (email == null) {
+            throw new BadCredentialsException("Invalid JWT Token");
+        }
+
+        UserDetails userDetails = userService.findByEmail(email);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
 
     @Override
     public boolean supports(Class<?> authentication) {
