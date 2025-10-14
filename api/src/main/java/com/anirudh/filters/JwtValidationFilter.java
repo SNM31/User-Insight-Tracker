@@ -32,6 +32,12 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         String token = extractJwtToken(request);
         System.out.println("Token extracted: " + token);
         if(token!=null){
+            String path=request.getServletPath();
+            System.out.println("Request path: " + path);
+            if(path.startsWith("/api/admin"))
+            {  
+                Strig email= request.getHeader("X-Dashboard-Email");
+            }
             JwtAuthenticationToken authToken= new JwtAuthenticationToken(token);
             Authentication authResult=authenticationManager.authenticate(authToken);
             if(!tokenBlacklistService.isTokenBlacklisted(token) && authResult.isAuthenticated()){
