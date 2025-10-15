@@ -2,6 +2,7 @@ package com.anirudh.filters;
 
 import java.io.IOException;
 
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.cache.CacheProperties.Redis;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,12 +13,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.anirudh.service.TokenBlacklistService;
 import com.anirudh.token.JwtAuthenticationToken;
+import com.anirudh.utils.JwtUtil;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
 public class JwtValidationFilter extends OncePerRequestFilter {
-    
+
+    @Autowired
+    private JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final TokenBlacklistService tokenBlacklistService;
     public JwtValidationFilter(AuthenticationManager authenticationManager, TokenBlacklistService tokenBlacklistService) {
@@ -36,8 +41,22 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             System.out.println("Request path: " + path);
             if(path.startsWith("/api/admin"))
             {  
-                Strig email= request.getHeader("X-Dashboard-Email");
+                String email= jwtUtil.validateAndExtractEmailForDashboard(token);
+                if(email==null){
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Admin Invite Token");
+                    return; 
+                }
+                else{
+                    System.out.println("Admin invite token is valid for email: " + email);
+                    // Set authentication in SecurityContext if needed
+                    JwtAuthenticationToken authToken= new JwtAuthenticationToken(token);
+                    Authentication authResult=authenticationManager.authenticate(authToken);
+                    if(authResult.isAuthenticated()){
+                        SecurityContextHolder.getContext().setAuthentication(authResult);
+                    }
+                }
             }
+            else{}
             JwtAuthenticationToken authToken= new JwtAuthenticationToken(token);
             Authentication authResult=authenticationManager.authenticate(authToken);
             if(!tokenBlacklistService.isTokenBlacklisted(token) && authResult.isAuthenticated()){
