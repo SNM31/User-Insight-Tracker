@@ -64,6 +64,7 @@ public class AnalyticsService {
         double avgSessionDuration = getAverageSessionDuration(sessionIds, totalTimeSpent);
         double avgSessionsPerDay = getAverageSessionsPerDay(sessionIds.size(), filter);
         int activeUsers = countActiveUsers(events);
+        double bounceRate = (double) calculateBouncedEvents(events) / Math.max(1, sessionIds.size()) * 100;
          Map<Long,List<UserActivity>> categoriesVisited=events
                                                .stream()
                                                .collect((Collectors.groupingBy(UserActivity::getUserId)));
@@ -80,6 +81,7 @@ public class AnalyticsService {
                 // .regionDistribution(groupCount(events, UserActivity::getRegion))
                 .countryDistribution(groupCount(categoriesVisited, UserActivity::getCountry))
                 .loginActivityByHour(getLoginActivityByHour(events))
+                .bounceRate(bounceRate)
                 .build();
     }
 
@@ -159,4 +161,12 @@ public class AnalyticsService {
                     .distinct()
                     .collect(Collectors.groupingBy(key -> key, Collectors.counting()));
 }
+ private int calculateBouncedEvents(List<UserActivity> events){
+        Map<String, List<UserActivity>> sessions = events.stream()
+                .filter(e -> e.getSessionId() != null)
+                .collect(Collectors.groupingBy(UserActivity::getSessionId));
+         return (int) sessions.values().stream()
+                .filter(e->e.size()<=2)
+                .count();       
+ }
 }

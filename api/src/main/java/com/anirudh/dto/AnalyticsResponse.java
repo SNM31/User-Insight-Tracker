@@ -16,6 +16,7 @@ public class AnalyticsResponse {
     private Map<String, Long> topSubcategoriesVisited;
     private Map<String, Long> deviceTypeDistribution;
     private Map<Integer, Long> loginActivityByHour;
+    private double bounceRate;
 
     // General-only
     private Integer totalUsers;

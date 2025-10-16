@@ -39,6 +39,8 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         if(token!=null){
             String path=request.getServletPath();
             System.out.println("Request path: " + path);
+            JwtAuthenticationToken authToken= new JwtAuthenticationToken(token);
+            Authentication authResult=authenticationManager.authenticate(authToken);
             if(path.startsWith("/api/admin"))
             {  
                 String email= jwtUtil.validateAndExtractEmailForDashboard(token);
@@ -49,16 +51,14 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                 else{
                     System.out.println("Admin invite token is valid for email: " + email);
                     // Set authentication in SecurityContext if needed
-                    JwtAuthenticationToken authToken= new JwtAuthenticationToken(token);
-                    Authentication authResult=authenticationManager.authenticate(authToken);
+            
                     if(authResult.isAuthenticated()){
                         SecurityContextHolder.getContext().setAuthentication(authResult);
                     }
                 }
             }
-            else{}
-            JwtAuthenticationToken authToken= new JwtAuthenticationToken(token);
-            Authentication authResult=authenticationManager.authenticate(authToken);
+            else{
+            
             if(!tokenBlacklistService.isTokenBlacklisted(token) && authResult.isAuthenticated()){
                 System.out.println("JWT Token is valid for user: " + authResult.getName());
                 SecurityContextHolder.getContext().setAuthentication(authResult);
@@ -69,6 +69,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                 return;
             }
         }
+    }
         
          filterChain.doFilter(request, response);
     }
