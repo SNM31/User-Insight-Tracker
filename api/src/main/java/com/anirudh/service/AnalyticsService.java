@@ -2,6 +2,7 @@ package com.anirudh.service;
 
 import com.anirudh.dto.AnalyticsResponse;
 import com.anirudh.dto.MetricsFilterRequest;
+import com.anirudh.dto.PowerUserDto;
 import com.anirudh.model.EventType;
 import com.anirudh.model.UserActivity;
 import com.anirudh.repository.UserActivityRepository;
@@ -68,6 +69,9 @@ public class AnalyticsService {
          Map<Long,List<UserActivity>> categoriesVisited=events
                                                .stream()
                                                .collect((Collectors.groupingBy(UserActivity::getUserId)));
+        List<PowerUserDto> potentialPowerUsers=getPowerUsers(events);
+        potentialPowerUsers.sort((u1, u2) -> Long.compare(u2.getTotalSessions(), u1.getTotalSessions()));
+        potentialPowerUsers=potentialPowerUsers.stream().limit((int)Math.max(1,potentialPowerUsers.size()*0.05)).collect(Collectors.toList());                                       
 
         return AnalyticsResponse.builder()
                 .totalUsers(userIds.size())
@@ -82,6 +86,7 @@ public class AnalyticsService {
                 .countryDistribution(groupCount(categoriesVisited, UserActivity::getCountry))
                 .loginActivityByHour(getLoginActivityByHour(events))
                 .bounceRate(bounceRate)
+                .powerUsers(potentialPowerUsers)
                 .build();
     }
 
@@ -160,13 +165,39 @@ public class AnalyticsService {
                     .map(String::toLowerCase)
                     .distinct()
                     .collect(Collectors.groupingBy(key -> key, Collectors.counting()));
-}
- private int calculateBouncedEvents(List<UserActivity> events){
-        Map<String, List<UserActivity>> sessions = events.stream()
-                .filter(e -> e.getSessionId() != null)
-                .collect(Collectors.groupingBy(UserActivity::getSessionId));
+    }
+    private int calculateBouncedEvents(List<UserActivity> events) {
+        Map<String, List<UserActivity>> sessions = 
+                    events.stream()
+                    .filter(e -> e.getSessionId() != null)
+                    .collect(Collectors.groupingBy(UserActivity::getSessionId));
          return (int) sessions.values().stream()
-                .filter(e->e.size()<=2)
-                .count();       
- }
+                    .filter(e->e.size()<=2)
+                    .count();       
+    }
+
+    private List<PowerUserDto> getPowerUsers(List<UserActivity> events) {
+        Map<Long,List<UserActivity>> userEvents= events.stream()
+               .filter(e->e.getUserId()!=null)
+               .collect(Collectors.groupingBy(UserActivity::getUserId));
+
+        List<PowerUserDto> powerUsers=userEvents.entrySet().stream()
+               .map(
+                entry->{
+                    List<UserActivity> activities=entry.getValue();
+                    PowerUserDto dto=PowerUserDto.builder()
+                    .userId(entry.getKey())
+                    .totalTimeSpent(getTotalDuration(activities))
+                    .totalSessions(getUniqueSessionIds(activities).size())
+                    .averageSessionDuration(getAverageSessionDuration(getUniqueSessionIds(activities), getTotalDuration(activities)))
+                    .lastActiveDate(getLastActiveDate(activities))
+                    .build();
+                    
+                    return dto;
+               }).collect(Collectors.toList());   
+
+        return powerUsers;
+    }
+
+  
 }
