@@ -17,6 +17,7 @@ public class AnalyticsResponse {
     private Map<String, Long> deviceTypeDistribution;
     private Map<Integer, Long> loginActivityByHour;
     private double bounceRate;
+    private List<PowerUserDto> powerUsers;
 
     // General-only
     private Integer totalUsers;

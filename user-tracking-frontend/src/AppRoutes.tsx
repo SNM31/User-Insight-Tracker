@@ -6,6 +6,7 @@ import Register from './pages/RegisterPage';
 import Home from './pages/HomePage';
 import SubCategoryList from './components/SubCategoryList';
 import ListingPage from './components/ListingPage';
+import Dashboard from './pages/Dashboard';
 // import AdminRegister from './pages/AdminRegister';
 import AdminLogin from './pages/AdminLogin';
 
@@ -17,7 +18,7 @@ const AppRoutes = () => {
     <Routes>
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/home" /> : <Login />}
+        element={isAuthenticated ? <Navigate to="/home" /> : <Dashboard />}
       />
       <Route path="/register" element={<Register />} />
       <Route
