@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import axios from 'axios';
+import StatCard from '../components/StatCard';
+import TopCategoriesChart from '../components/TopCategoriesChart';
+import DeviceChart from '../components/DeviceChart';
+import PowerUsersTable from '../components/PowerUsersTable';
 
 // --- TypeScript Interfaces for Data Structures ---
 
@@ -22,96 +25,6 @@ interface AnalyticsData {
   deviceTypeDistribution: { [key: string]: number };
   powerUsers: PowerUserStat[];
 }
-
-// --- Reusable UI Components ---
-
-const StatCard: React.FC<{ title: string; value: string | number; }> = ({ title, value }) => (
-  <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-    <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-    <p className="mt-2 text-3xl font-bold text-gray-800">{value}</p>
-  </div>
-);
-
-const TopCategoriesChart: React.FC<{ data: { [key: string]: number } }> = ({ data }) => {
-  const chartData = Object.entries(data)
-    .map(([name, value]) => ({ name, visits: value }))
-    .sort((a, b) => b.visits - a.visits)
-    .slice(0, 5); // Show top 5
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-md h-96 border border-gray-200">
-      <h3 className="font-bold text-gray-800 mb-4">Top Visited Categories</h3>
-      <ResponsiveContainer width="100%" height="90%">
-        <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
-          <XAxis type="number" hide />
-          <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
-          <Tooltip cursor={{ fill: '#f9fafb' }} />
-          <Bar dataKey="visits" fill="#facc15" barSize={20} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-const DeviceChart: React.FC<{ data: { [key: string]: number } }> = ({ data }) => {
-  const chartData = Object.entries(data).map(([name, value]) => ({ name, value }));
-  const COLORS = ['#4f46e5', '#facc15', '#60a5fa']; // Indigo, Yellow, Light Blue
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-md h-96 border border-gray-200">
-      <h3 className="font-bold text-gray-800 mb-4">Device Distribution</h3>
-      <ResponsiveContainer width="100%" height="90%">
-        <PieChart>
-          {/* --- FIX IS HERE: Changed the parameter type to 'any' to resolve the type mismatch --- */}
-          <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} labelLine={false} label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}>
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-const PowerUsersTable: React.FC<{ users: PowerUserStat[] }> = ({ users }) => {
-    const formatTime = (seconds: number) => {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        return `${h > 0 ? `${h}h ` : ''}${m}m`;
-    };
-
-    return (
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 col-span-1 lg:col-span-2">
-            <h3 className="font-bold text-gray-800 mb-4">Power Users</h3>
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sessions</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Time</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Active</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {users.map((user, index) => (
-                            <tr key={index}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.email}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.sessionCount}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatTime(user.totalTimeSpent)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.lastActiveDate}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-};
-
 
 // --- The Main Dashboard Component ---
 const Dashboard = () => {
