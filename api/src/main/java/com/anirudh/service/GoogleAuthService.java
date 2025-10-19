@@ -75,7 +75,7 @@ public class GoogleAuthService {
                     newUser.setEmail(email);
                     newUser.setUsername(name != null ? name : email);
                     newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-                    newUser.setRole("ROLE_ADMIN");
+                    newUser.setRole("ROLE_");
                     return userRepository.save(newUser);
                 });
     }
