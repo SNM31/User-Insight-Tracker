@@ -22,7 +22,7 @@ public class AnalyticsController {
     private AnalyticsService analyticsService;
 
     @GetMapping("/metrics")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ADVERTISER)")   
     public AnalyticsResponse getMetrics(@ModelAttribute MetricsFilterRequest filterRequest) {
         return analyticsService.getAnalytics(filterRequest);
     }
