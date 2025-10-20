@@ -26,6 +26,8 @@ public class AnalyticsService {
     }
 
     public AnalyticsResponse getAnalytics(MetricsFilterRequest filter) {
+         boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
         List<UserActivity> events = repository.findAll(withFilters(filter));
         return filter.getUserId() != null
                 ? buildUserAnalytics(events)
@@ -192,7 +194,7 @@ public class AnalyticsService {
                     .averageSessionDuration(getAverageSessionDuration(getUniqueSessionIds(activities), getTotalDuration(activities)))
                     .lastActiveDate(getLastActiveDate(activities))
                     .build();
-                    
+
                     return dto;
                }).collect(Collectors.toList());   
 
