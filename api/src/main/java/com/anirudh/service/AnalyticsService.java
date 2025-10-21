@@ -8,6 +8,7 @@ import com.anirudh.model.UserActivity;
 import com.anirudh.repository.UserActivityRepository;
 
 import org.checkerframework.checker.units.qual.A;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,10 +31,11 @@ public class AnalyticsService {
     public AnalyticsResponse getAnalytics(MetricsFilterRequest filter,Authentication authentication) {
          boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
+        if(!isAdmin) filter.setUserId(null);
         List<UserActivity> events = repository.findAll(withFilters(filter));
-        return filter.getUserId() != null
+        return (filter.getUserId() != null && isAdmin)
                 ? buildUserAnalytics(events)
-                : buildGeneralAnalytics(events, filter);
+                : buildGeneralAnalytics(events,filter,isAdmin);
     }
 
     // =================== User Profile Metrics ===================
@@ -62,23 +64,30 @@ public class AnalyticsService {
 
     // =================== General Metrics ===================
 
-    private AnalyticsResponse buildGeneralAnalytics(List<UserActivity> events, MetricsFilterRequest filter) {
+    private AnalyticsResponse buildGeneralAnalytics(List<UserActivity> events, MetricsFilterRequest filter,boolean isAdmin) {
         Set<Long> userIds = getUniqueUserIds(events);
         Set<String> sessionIds = getUniqueSessionIds(events);
         long totalTimeSpent = getTotalDuration(events);
         double avgSessionDuration = getAverageSessionDuration(sessionIds, totalTimeSpent);
         double avgSessionsPerDay = getAverageSessionsPerDay(sessionIds.size(), filter);
-        int activeUsers = countActiveUsers(events);
-        double bounceRate = (double) calculateBouncedEvents(events) / Math.max(1, sessionIds.size()) * 100;
+        Integer totalUsersCount=null;
+        Integer activeUsers =null ;
+        Double bounceRate = 0.0;
          Map<Long,List<UserActivity>> categoriesVisited=events
                                                .stream()
                                                .collect((Collectors.groupingBy(UserActivity::getUserId)));
-        List<PowerUserDto> potentialPowerUsers=getPowerUsers(events);
+        List<PowerUserDto> potentialPowerUsers=null;
+        if(isAdmin){
+        totalUsersCount=userIds.size();
+        activeUsers=countActiveUsers(events);    
+        potentialPowerUsers=getPowerUsers(events);
+        bounceRate = (double) calculateBouncedEvents(events) / Math.max(1, sessionIds.size()) * 100;
         potentialPowerUsers.sort((u1, u2) -> Long.compare(u2.getTotalSessions(), u1.getTotalSessions()));
-        potentialPowerUsers=potentialPowerUsers.stream().limit((int)Math.max(1,potentialPowerUsers.size()*0.05)).collect(Collectors.toList());                                       
+        potentialPowerUsers=potentialPowerUsers.stream().limit((int)Math.max(1,potentialPowerUsers.size()*0.05)).collect(Collectors.toList());          
+        }                             
 
         return AnalyticsResponse.builder()
-                .totalUsers(userIds.size())
+                .totalUsers(totalUsersCount)
                 .activeUsers(activeUsers)
                 .totalSessions(sessionIds.size())
                 .averageSessionDuration(avgSessionDuration)
