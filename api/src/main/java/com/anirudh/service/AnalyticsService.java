@@ -6,6 +6,8 @@ import com.anirudh.dto.PowerUserDto;
 import com.anirudh.model.EventType;
 import com.anirudh.model.UserActivity;
 import com.anirudh.repository.UserActivityRepository;
+
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,7 +27,7 @@ public class AnalyticsService {
         this.repository = repository;
     }
 
-    public AnalyticsResponse getAnalytics(MetricsFilterRequest filter) {
+    public AnalyticsResponse getAnalytics(MetricsFilterRequest filter,Authentication authentication) {
          boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
         List<UserActivity> events = repository.findAll(withFilters(filter));
