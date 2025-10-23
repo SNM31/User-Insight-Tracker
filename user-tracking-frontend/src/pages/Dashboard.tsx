@@ -107,7 +107,7 @@ const Dashboard = () => {
         const requestBody = filters; 
 
         const response = await axios.post(
-          'http://localhost:8080/api/analytics', // Your flexible endpoint
+          'http://localhost:8080/admin/analytics/metrics', // Your flexible endpoint
           requestBody,
           {
             headers: { 'Authorization': `Bearer ${token}` },
