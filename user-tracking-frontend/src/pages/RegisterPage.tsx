@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState(''); // State for the new email field
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const invitationToken = searchParams.get('token');
+
+  useEffect(() => {
+    if (invitationToken) {
+      navigate(`/dashboard/join?token=${encodeURIComponent(invitationToken)}`, { replace: true });
+    }
+  }, [invitationToken, navigate]);
 
   // Helper function to validate email format
   const validateEmail = (email: string) => {
@@ -42,6 +50,10 @@ const RegisterPage = () => {
       setError('Registration failed. The username or email may already be taken.');
     }
   };
+
+  if (invitationToken) {
+    return <div className="mt-20 text-center text-gray-500">Redirecting to dashboard onboarding...</div>;
+  }
 
   return (
     <div className="flex flex-col items-center mt-20">

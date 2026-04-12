@@ -1,41 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { getDashboardRole, getTokenPayload } from '../utils/tokenUtils';
 
-// --- ASSUMPTION: You have an auth context like this ---
-// import { useAuth } from '../context/AuthContext';
-
-// --- Import ALL your components ---
 import StatCard from '../components/StatCard';
 import TopCategoriesChart from '../components/TopCategoriesChart';
 import DeviceChart from '../components/DeviceChart';
 import PowerUsersTable from '../components/PowerUsersTable';
 import FilterBar from '../components/FilterBar';
 import LoginActivityByHourChart from '../components/LoginActivityByHourChart';
-// (You'd also import TopSubcategoriesChart, CountryDistributionChart etc.)
 
-// --- TypeScript Interfaces for Data Structures ---
-
-// This matches your backend's MetricsFilterRequest
 interface MetricsFilterRequest {
   startDate: string;
   endDate: string;
   country: string | null;
   deviceType: string | null;
   userId: string | null;
-  // Add any other filters you have
 }
 
 interface PowerUserStat {
   email: string;
   sessionCount: number;
-  totalTimeSpent: number; // in seconds
+  totalTimeSpent: number;
   lastActiveDate: string;
   topCategory: string;
 }
 
-// This matches your full backend AnalyticsResponse DTO
 interface AnalyticsResponse {
-  // General (Advertiser + Admin)
   totalSessions: number;
   averageSessionDuration: number;
   topCategoriesVisited: { [key: string]: number };
@@ -43,20 +34,14 @@ interface AnalyticsResponse {
   deviceTypeDistribution: { [key: string]: number };
   loginActivityByHour: { [key: number]: number };
   countryDistribution: { [key: string]: number };
-
-  // Admin-Only (PII) - Optional
   totalUsers?: number;
   activeUsers?: number;
   bounceRate?: number;
   powerUsers?: PowerUserStat[];
-
-  // User-Specific (Admin Drill-Down) - Optional
   totalTimeSpent?: number;
   lastActiveDate?: string;
 }
 
-
-// --- Utility to get default dates (e.g., Last 30 Days) ---
 const getDefaultDateRange = () => {
   const endDate = new Date();
   const startDate = new Date();
@@ -67,24 +52,19 @@ const getDefaultDateRange = () => {
   };
 };
 
-
-// --- The Main Dashboard Component ---
 const Dashboard = () => {
-  // --- ASSUMPTION: Getting user/role from context ---
-  // const { user, token } = useAuth();
-  
-  // --- MOCKED AUTH (Replace this with your real useAuth hook) ---
-  const { user, token } = {
-    user: { role: 'USER_ADMIN' }, // 'USER_ADMIN' or 'USER_ADVERTISER'
-    token: localStorage.getItem('adminToken'), // Or your real token
-  };
-  // --- End Mock ---
-
+  const navigate = useNavigate();
+  const token = localStorage.getItem('adminToken');
+  const tokenPayload = useMemo(() => (token ? getTokenPayload(token) : null), [token]);
+  const userRole = getDashboardRole(token) ?? 'ROLE_ADVERTISER';
+  const isAdmin = userRole === 'ROLE_ADMIN';
+  const userIdentity =
+    (typeof tokenPayload?.sub === 'string' && tokenPayload.sub) ||
+    (typeof tokenPayload?.email === 'string' && tokenPayload.email) ||
+    'Dashboard member';
   const [data, setData] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  // --- NEW: State for all filters ---
   const [filters, setFilters] = useState<MetricsFilterRequest>({
     ...getDefaultDateRange(),
     country: null,
@@ -92,23 +72,21 @@ const Dashboard = () => {
     userId: null,
   });
 
-  // --- UPDATED: Data fetching from the new API ---
   useEffect(() => {
     if (!token) {
-      setError("No authentication token found.");
+      setError('No dashboard token found. Sign in with Google to continue.');
       setLoading(false);
       return;
     }
 
     const fetchAnalytics = async () => {
       setLoading(true);
-      try {
-        // Body is just the filters
-        const requestBody = filters; 
+      setError('');
 
+      try {
         const response = await axios.post(
-          'http://localhost:8080/admin/analytics/metrics', // Your flexible endpoint
-          requestBody,
+          'http://localhost:8080/admin/analytics/metrics',
+          filters,
           {
             headers: { 'Authorization': `Bearer ${token}` },
           }
@@ -116,76 +94,176 @@ const Dashboard = () => {
         setData(response.data);
       } catch (err) {
         console.error(err);
-        setError('Failed to fetch analytics data.');
+        setError('Failed to fetch analytics data. Make sure the dashboard analytics endpoint accepts the dashboard token.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchAnalytics();
-  }, [filters, token]); // <-- Re-fetches when filters change!
+  }, [filters, token]);
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>;
-  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
-  if (!data) return <div className="p-8 text-center text-gray-500">No analytics data available.</div>;
+  const handleDashboardLogout = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('loginTime');
+    navigate('/dashboard/login');
+  };
 
-  // --- Conditional Logic ---
-  const isUserDrillDown = data.totalTimeSpent != null; // Check if we are in user-drill-down view
-  
-  // Format values safely (they might be null)
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 px-6 py-20 text-white">
+        <div className="mx-auto max-w-7xl animate-pulse space-y-6">
+          <div className="h-40 rounded-[2rem] border border-white/10 bg-white/5" />
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <div className="h-36 rounded-[1.75rem] border border-white/10 bg-white/5" />
+            <div className="h-36 rounded-[1.75rem] border border-white/10 bg-white/5" />
+            <div className="h-36 rounded-[1.75rem] border border-white/10 bg-white/5" />
+            <div className="h-36 rounded-[1.75rem] border border-white/10 bg-white/5" />
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="h-96 rounded-[1.75rem] border border-white/10 bg-white/5" />
+            <div className="h-96 rounded-[1.75rem] border border-white/10 bg-white/5" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-950 px-6 py-20 text-white">
+        <div className="mx-auto max-w-3xl rounded-[2rem] border border-rose-400/20 bg-white/5 p-10 text-center backdrop-blur-xl">
+          <p className="text-sm uppercase tracking-[0.3em] text-rose-200">Dashboard unavailable</p>
+          <h1 className="mt-4 text-4xl font-semibold">We could not load your workspace.</h1>
+          <p className="mt-5 text-base leading-7 text-slate-300">{error}</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <button
+              onClick={() => navigate('/dashboard/login')}
+              className="rounded-full bg-white px-5 py-3 text-sm font-medium text-slate-950 transition hover:bg-slate-100"
+            >
+              Return to dashboard sign-in
+            </button>
+            <button
+              onClick={handleDashboardLogout}
+              className="rounded-full border border-white/10 px-5 py-3 text-sm text-slate-100 transition hover:border-indigo-400/60"
+            >
+              Clear dashboard session
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-slate-950 px-6 py-20 text-white">
+        <div className="mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-white/5 p-10 text-center backdrop-blur-xl">
+          <h1 className="text-3xl font-semibold">No analytics data available yet.</h1>
+          <p className="mt-4 text-slate-300">Once backend metrics are returned, your charts and KPI cards will appear here.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const isUserDrillDown = data.totalTimeSpent != null;
   const formattedAvgDuration = data.averageSessionDuration ? `${Math.round(data.averageSessionDuration)}s` : 'N/A';
   const formattedBounceRate = data.bounceRate ? `${data.bounceRate.toFixed(1)}%` : 'N/A';
+  const roleLabel = isAdmin ? 'Admin' : 'Advertiser';
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(129,140,248,0.16),_transparent_30%),radial-gradient(circle_at_right,_rgba(251,191,36,0.08),_transparent_25%)]" />
       <div className="max-w-7xl mx-auto">
-        {/* Header - NOW DYNAMIC */}
-        <div className="flex-col md:flex-row flex justify-between items-start md:items-center mb-8 gap-4">
-          <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+        <div className="relative px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mb-8 rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full border border-indigo-300/20 bg-indigo-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-indigo-200">
+                    Dashboard Workspace
+                  </span>
+                  <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">
+                    {roleLabel}
+                  </span>
+                </div>
+                <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Premium visibility into your user activity.</h1>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
+                  Use your Google-backed dashboard access to explore performance, audience behavior, and power-user activity in one private analytics surface.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 rounded-3xl border border-white/10 bg-slate-950/50 p-5 text-sm text-slate-200">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Signed in as</p>
+                  <p className="mt-1 text-base font-medium text-white">{userIdentity}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Access level</p>
+                  <p className="mt-1 text-base font-medium text-white">{roleLabel}</p>
+                </div>
+                <button
+                  onClick={handleDashboardLogout}
+                  className="mt-2 rounded-full border border-white/10 px-4 py-2 text-sm transition hover:border-indigo-400/60 hover:text-white"
+                >
+                  Sign out of dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+
           <FilterBar
-            userRole={user.role}
+            userRole={userRole}
             currentFilters={filters}
             onFilterChange={setFilters}
           />
-        </div>
 
-        {/* --- KPI Cards (Conditionally Rendered) --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {isUserDrillDown ? (
-            <>
-              {/* --- User Drill-Down KPIs --- */}
-              <StatCard title="Total Time Spent" value={data.totalTimeSpent ? `${Math.round(data.totalTimeSpent / 60)}m` : 'N/A'} />
-              <StatCard title="Last Active" value={data.lastActiveDate || 'N/A'} />
-              <StatCard title="Total Sessions" value={data.totalSessions} />
-            </>
-          ) : (
-            <>
-              {/* --- General KPIs (PII safely hidden with '&&') --- */}
-              <StatCard title="Total Sessions" value={data.totalSessions} />
-              <StatCard title="Avg. Session" value={formattedAvgDuration} />
-              
-              {/* These cards will only show for Admins (since advertisers get null) */}
-              {data.totalUsers && <StatCard title="Total Users" value={data.totalUsers} />}
-              {data.activeUsers && <StatCard title="Active Users" value={data.activeUsers} />}
-              {data.bounceRate && <StatCard title="Bounce Rate" value={formattedBounceRate} />}
-            </>
-          )}
-        </div>
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {isUserDrillDown ? (
+              <>
+                <StatCard title="Total Time Spent" value={data.totalTimeSpent ? `${Math.round(data.totalTimeSpent / 60)}m` : 'N/A'} />
+                <StatCard title="Last Active" value={data.lastActiveDate || 'N/A'} />
+                <StatCard title="Total Sessions" value={data.totalSessions} />
+                <StatCard title="Avg. Session" value={formattedAvgDuration} />
+              </>
+            ) : (
+              <>
+                <StatCard title="Total Sessions" value={data.totalSessions} />
+                <StatCard title="Avg. Session" value={formattedAvgDuration} />
+                {data.totalUsers != null && <StatCard title="Total Users" value={data.totalUsers} />}
+                {data.activeUsers != null && <StatCard title="Active Users" value={data.activeUsers} />}
+                {data.bounceRate != null && <StatCard title="Bounce Rate" value={formattedBounceRate} />}
+              </>
+            )}
+          </div>
 
-        {/* --- Charts and Tables (Conditionally Rendered) --- */}
-        
-        {/* Charts that are safe/common for most views */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {data.topCategoriesVisited && <TopCategoriesChart data={data.topCategoriesVisited} />}
-          {data.deviceTypeDistribution && <DeviceChart data={data.deviceTypeDistribution} />}
-          {data.loginActivityByHour && <LoginActivityByHourChart data={data.loginActivityByHour} />}
-          {/* You would add CountryDistributionChart here too */}
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {data.topCategoriesVisited && <TopCategoriesChart data={data.topCategoriesVisited} />}
+            {data.deviceTypeDistribution && <DeviceChart data={data.deviceTypeDistribution} />}
+            {data.loginActivityByHour && <LoginActivityByHourChart data={data.loginActivityByHour} />}
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+              <p className="text-sm uppercase tracking-[0.25em] text-slate-400">Workspace notes</p>
+              <h3 className="mt-3 text-2xl font-semibold text-white">Built for invited stakeholders.</h3>
+              <p className="mt-4 text-sm leading-7 text-slate-300">
+                Admins can review deeper user-level insights and manage invitations. Advertisers can access the curated dashboard surface without the admin-only controls.
+              </p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+                  <p className="text-sm text-slate-400">Role</p>
+                  <p className="mt-2 text-lg font-medium text-white">{roleLabel}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+                  <p className="text-sm text-slate-400">Date range</p>
+                  <p className="mt-2 text-lg font-medium text-white">
+                    {filters.startDate} to {filters.endDate}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {isAdmin && data.powerUsers && data.powerUsers.length > 0 && <div className="mt-8"><PowerUsersTable users={data.powerUsers} /></div>}
         </div>
-        
-        {/* --- PII Table (Only shows if data.powerUsers exists) --- */}
-        {data.powerUsers && (
-          <PowerUsersTable users={data.powerUsers} />
-        )}
       </div>
     </div>
   );

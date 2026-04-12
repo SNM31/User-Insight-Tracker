@@ -10,6 +10,8 @@ const ListingPage = () => {
 
   const currentCategory = categoryData.find(cat => cat.slug === category);
   const currentSubCategory = currentCategory?.subcategories.find(subcat => subcat.slug === sub);
+  const currentCategoryName = currentCategory?.name;
+  const currentSubCategoryName = currentSubCategory?.name;
 
   useEffect(() => {
     startTimeRef.current = Date.now();
@@ -19,15 +21,15 @@ const ListingPage = () => {
         const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
         if (timeSpent > 0) {
           trackEvent(EventType.TIME_SPENT_ON_SUBCATEGORY, {
-            category: currentCategory?.name || category,
-            subcategory: currentSubCategory?.name || sub,
+            category: currentCategoryName || category,
+            subcategory: currentSubCategoryName || sub,
             duration: timeSpent,
             timestamp: new Date().toISOString(), // ✅ ISO string
           });
         }
       }
     };
-  }, [category, sub]);
+  }, [category, sub, currentCategoryName, currentSubCategoryName]);
 
   const goToHome = () => {
     navigate('/home');

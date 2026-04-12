@@ -1,24 +1,25 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './hooks/useAuth';
-import { useAdminAuth } from './hooks/useAdminAuth';
+import { isTokenValid } from './utils/tokenUtils';
 import Login from './pages/LoginPage';
 import Register from './pages/RegisterPage';
 import Home from './pages/HomePage';
 import SubCategoryList from './components/SubCategoryList';
 import ListingPage from './components/ListingPage';
 import Dashboard from './pages/Dashboard';
-// import AdminRegister from './pages/AdminRegister';
 import AdminLogin from './pages/AdminLogin';
+import JoinPage from './pages/JoinPage';
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
-  const {isAdminAuthenticated} = useAdminAuth();
+  const userToken = localStorage.getItem('token');
+  const adminToken = localStorage.getItem('adminToken');
+  const isAuthenticated = Boolean(userToken && isTokenValid(userToken));
+  const isAdminAuthenticated = Boolean(adminToken && isTokenValid(adminToken));
 
   return (
     <Routes>
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/home" /> : <Dashboard />}
+        element={isAuthenticated ? <Navigate to="/home" /> : <Login />}
       />
       <Route path="/register" element={<Register />} />
       <Route
@@ -34,14 +35,21 @@ const AppRoutes = () => {
         element={isAuthenticated ? <ListingPage /> : <Navigate to="/login" />}
       />
       <Route
+        path="/dashboard"
+        element={isAdminAuthenticated ? <Dashboard /> : <Navigate to="/dashboard/login" />}
+      />
+      <Route
         path="*"
-        element={<Navigate to={isAuthenticated ? "/home" : "/login"} />}
+        element={<Navigate to={isAuthenticated ? "/home" : isAdminAuthenticated ? "/dashboard" : "/login"} />}
       />
       <Route
         path="/dashboard/login"
-        element={isAdminAuthenticated ? <Navigate to="/login" /> : <AdminLogin />  }
+        element={isAdminAuthenticated ? <Navigate to="/dashboard" /> : <AdminLogin />}
       />
-       {/* <Route path="/register/admin" element={<AdminRegister />} /> */}
+      <Route
+        path="/dashboard/join"
+        element={isAdminAuthenticated ? <Navigate to="/dashboard" /> : <JoinPage />}
+      />
     </Routes>
   );
 };

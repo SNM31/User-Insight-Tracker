@@ -12,7 +12,7 @@ const Login = () => {
   const [error, setError] = useState('');
   
   // Correctly destructuring the custom hook
-  const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const { setIsAuthenticated } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
