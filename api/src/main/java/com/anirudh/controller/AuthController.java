@@ -46,25 +46,25 @@ public class AuthController {
     @Autowired
     private GoogleAuthService googleAuthService;
 
-    // @PostMapping("/login")
-    // public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest)
-    // {
-    //     try{
-    //         AuthResponse response=userService.login(authRequest);
-    //         //
-    //         return ResponseEntity.ok()
-    //                 .body(response);
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest)
+    {
+        try{
+            AuthResponse response=userService.login(authRequest);
+            //
+            return ResponseEntity.ok()
+                    .body(response);
 
-    //     }catch (RuntimeException e){
-    //         AuthResponse authResponse=AuthResponse.builder()
-    //                 .message(e.getMessage())
-    //                 .statusCode(HttpStatus.UNAUTHORIZED.value())
-    //                 .build();
+        }catch (RuntimeException e){
+            AuthResponse authResponse=AuthResponse.builder()
+                    .message(e.getMessage())
+                    .statusCode(HttpStatus.UNAUTHORIZED.value())
+                    .build();
 
-    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-    //                 .body(authResponse);
-    //     }
-    // }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(authResponse);
+        }
+    }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest authRequest)
@@ -112,7 +112,7 @@ public class AuthController {
          }
     }
 
-     @PostMapping("google/login")
+     @PostMapping("/google/login")
      public ResponseEntity<?> googleLogin(@RequestBody GoogleAuthToken googleAuthToken) {
          try {
             String token = googleAuthService.authenticate(googleAuthToken.getToken());

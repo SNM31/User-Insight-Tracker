@@ -1,5 +1,6 @@
 package com.anirudh.service;
 
+import com.anirudh.dto.GoogleAuthRequest;
 import com.anirudh.model.User;
 import com.anirudh.repository.UserRepository;
 import com.anirudh.utils.JwtUtil;
@@ -34,49 +35,39 @@ public class GoogleAuthService {
     private JwtUtil jwtUtil;
 
     public String authenticate(String idToken) throws GeneralSecurityException, IOException {
-        User user = verifyAndGetUserFromGoogleToken(idToken);
-
-        List<GrantedAuthority> authorities = user.getAuthorities().stream().collect(Collectors.toList());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
-
+        GoogleIdToken.Payload payload = verifyGoogleToken(idToken);
+        User user = userRepository.findByEmail(payload.getEmail())
+        .orElseThrow(() -> new IllegalArgumentException("User not found"));
         return jwtUtil.generateDashboardToken(user.getEmail(),user.getRole());
     }
 
-    public String authenticateForInvitation(String token, String invitedEmail) throws GeneralSecurityException, IOException {
-        User user = verifyAndGetUserFromGoogleToken(token);
-
-        if (!user.getEmail().equalsIgnoreCase(invitedEmail)) {
+    public String authenticateForInvitation(String googleIdToken, String invitedEmail,String invitedRole) throws GeneralSecurityException, IOException {
+        var payload = verifyGoogleToken(googleIdToken);
+        if (!payload.getEmail().equalsIgnoreCase(invitedEmail)) {
             throw new IllegalArgumentException("Google account email does not match the invited email.");
         }
-
-        List<GrantedAuthority> authorities = user.getAuthorities().stream().collect(Collectors.toList());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
-        
-        return jwtUtil.generateDashboardToken(user.getEmail(),user.getRole());
+        User user = upsertUser(invitedEmail, (String) payload.get("name"), invitedRole);
+        return jwtUtil.generateDashboardToken(user.getEmail(), user.getRole());
     }
-    private User verifyAndGetUserFromGoogleToken(String token) throws GeneralSecurityException, IOException {
+
+    private GoogleIdToken.Payload verifyGoogleToken(String token) throws GeneralSecurityException, IOException {
         GoogleIdToken idToken = googleIdTokenVerifier.verify(token);
         if (idToken == null) {
             throw new IllegalArgumentException("Invalid Google Token");
         }
-
-        GoogleIdToken.Payload payload = idToken.getPayload();
-        String email = payload.getEmail();
-        String name = (String) payload.get("name");
-
-        return findOrCreateUser(email, name);
+        return idToken.getPayload();
     }
 
-    private User findOrCreateUser(String email, String name) {
-        return userRepository.findByEmail(email)
-        
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setEmail(email);
-                    newUser.setUsername(name != null ? name : email);
-                    newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-                    newUser.setRole("ROLE_");
-                    return userRepository.save(newUser);
-                });
+    private User upsertUser(String email, String name,String role) {
+       return userRepository.findByEmail(email)
+       .map(user->{user.setRole(role); return userRepository.save(user);})
+       .orElseGet(() -> {
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setUsername(name != null ? name : email);
+        newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        newUser.setRole(role);
+        return userRepository.save(newUser);
+       });
     }
 }

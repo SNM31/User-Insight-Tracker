@@ -30,7 +30,7 @@ public class AnalyticsService {
 
     public AnalyticsResponse getAnalytics(MetricsFilterRequest filter,Authentication authentication) {
          boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("USER_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         if(!isAdmin) filter.setUserId(null);
         List<UserActivity> events = repository.findAll(withFilters(filter));
         return (filter.getUserId() != null && isAdmin)

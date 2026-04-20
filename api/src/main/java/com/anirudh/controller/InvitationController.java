@@ -18,9 +18,10 @@ import com.anirudh.dto.GoogleAuthRequest;
 import com.anirudh.dto.InvitationDto;
 import com.anirudh.service.GoogleAuthService;
 import com.anirudh.service.InvitationService;
-
+import com.anirudh.dto.AuthResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 @RestController
-@RequestMapping("/api/invite")
+@RequestMapping("/api/admin/invite")
 public class InvitationController {
     @Autowired
     private InvitationService invitationService;
@@ -72,13 +73,21 @@ public class InvitationController {
         }
     }
     @PostMapping("/finalize")
-    public ResponseEntity<String> finalizeInvitation(@RequestBody GoogleAuthRequest googleAuthRequest)
+    public ResponseEntity<?> finalizeInvitation(@RequestBody GoogleAuthRequest googleAuthRequest)
     {
         try{
-            String email=invitationService.verifyInviteToken(googleAuthRequest.getInvitationToken());
-            System.out.println("Email from invitation token: "+email);
-            googleAuthService.authenticateForInvitation(googleAuthRequest.getGoogleIdToken(),email);
-            return ResponseEntity.ok("Invitation finalized successfully. You can now log in.");
+            // verifying if token is valid or not
+           InvitationDto inviteDetails=invitationService.consumeInviteToken(googleAuthRequest.getInvitationToken());
+           String jwt=googleAuthService.authenticateForInvitation(
+                           googleAuthRequest.getGoogleIdToken(),
+                          inviteDetails.getEmail(),
+                          inviteDetails.getRole()
+                        );
+           return ResponseEntity.ok(AuthResponse.builder()
+               .token(jwt)
+               .message("Invitation finalized successfully.")
+               .statusCode(HttpStatus.OK.value())
+               .build());
         }
         catch(IllegalArgumentException e){
              e.printStackTrace();

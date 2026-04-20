@@ -6,4 +6,5 @@ import lombok.Data;
 public class GoogleAuthRequest {
     private String invitationToken;
     private String googleIdToken;
+    private String role;
 }

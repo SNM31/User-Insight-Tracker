@@ -16,14 +16,14 @@ import com.anirudh.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/analytics")
+@RequestMapping("/api/admin/analytics")
 // @RequiredArgsConstructor
 public class AnalyticsController {
     @Autowired
     private AnalyticsService analyticsService;
 
     @GetMapping("/metrics")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ADVERTISER)")   
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ADVERTISER')")   
     public AnalyticsResponse getMetrics(@ModelAttribute MetricsFilterRequest filterRequest,Authentication auhentication) {
         return analyticsService.getAnalytics(filterRequest,auhentication);
     }
