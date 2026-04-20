@@ -8,6 +8,7 @@ import ListingPage from './components/ListingPage';
 import Dashboard from './pages/Dashboard';
 import AdminLogin from './pages/AdminLogin';
 import JoinPage from './pages/JoinPage';
+import InvitesPage from './pages/InvitesPage';
 
 const AppRoutes = () => {
   const userToken = localStorage.getItem('token');
@@ -49,6 +50,10 @@ const AppRoutes = () => {
       <Route
         path="/dashboard/join"
         element={isAdminAuthenticated ? <Navigate to="/dashboard" /> : <JoinPage />}
+      />
+      <Route
+        path="/dashboard/invites"
+        element={isAdminAuthenticated ? <InvitesPage /> : <Navigate to="/dashboard/login" />}
       />
     </Routes>
   );

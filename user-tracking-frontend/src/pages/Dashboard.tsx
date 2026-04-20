@@ -15,7 +15,7 @@ interface MetricsFilterRequest {
   endDate: string;
   country: string | null;
   deviceType: string | null;
-  userId: string | null;
+  userId: number | null;
 }
 
 interface PowerUserStat {
@@ -84,11 +84,15 @@ const Dashboard = () => {
       setError('');
 
       try {
-        const response = await axios.post(
-          'http://localhost:8080/admin/analytics/metrics',
-          filters,
+        const cleanFilters = Object.fromEntries(
+          Object.entries(filters).filter(([, v]) => v !== null && v !== ''),
+        );
+
+        const response = await axios.get(
+          'http://localhost:8080/api/admin/analytics/metrics',
           {
-            headers: { 'Authorization': `Bearer ${token}` },
+            params: cleanFilters,
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         setData(response.data);
@@ -202,6 +206,14 @@ const Dashboard = () => {
                   <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Access level</p>
                   <p className="mt-1 text-base font-medium text-white">{roleLabel}</p>
                 </div>
+                {isAdmin && (
+                  <button
+                    onClick={() => navigate('/dashboard/invites')}
+                    className="mt-2 rounded-full border border-indigo-300/40 bg-indigo-300/10 px-4 py-2 text-sm text-indigo-100 transition hover:border-indigo-300/80"
+                  >
+                    Invite team
+                  </button>
+                )}
                 <button
                   onClick={handleDashboardLogout}
                   className="mt-2 rounded-full border border-white/10 px-4 py-2 text-sm transition hover:border-indigo-400/60 hover:text-white"

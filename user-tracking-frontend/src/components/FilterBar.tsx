@@ -10,7 +10,7 @@ interface MetricsFilterRequest {
   endDate: string;
   country: string | null;
   deviceType: string | null;
-  userId: string | null;
+  userId: number | null;
 }
 
 // Define the component's props
@@ -32,9 +32,18 @@ const FilterBar: React.FC<FilterBarProps> = ({ userRole, currentFilters, onFilte
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
+    let nextValue: string | number | null = value || null;
+    if (name === 'userId') {
+      if (!value) {
+        nextValue = null;
+      } else {
+        const parsed = Number(value);
+        nextValue = Number.isFinite(parsed) ? parsed : null;
+      }
+    }
     onFilterChange({
       ...currentFilters,
-      [name]: value || null, // Set to null if value is empty string
+      [name]: nextValue,
     });
   };
 

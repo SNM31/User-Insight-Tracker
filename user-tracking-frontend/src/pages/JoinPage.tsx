@@ -22,7 +22,7 @@ const JoinPage = () => {
 
     const verifyToken = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/invite/join/verify?invitationToken=${invitationToken}`);
+        const response = await axios.get(`http://localhost:8080/api/admin/invite/join/verify?invitationToken=${invitationToken}`);
         setInvitedEmail(response.data); // Assume the API returns the invited email on success
       } catch (err) {
         setError('This invitation is invalid or has expired.');
@@ -44,7 +44,7 @@ const JoinPage = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8080/api/invite/finalize', {
+      const response = await axios.post('http://localhost:8080/api/admin/invite/finalize', {
         invitationToken,
         googleIdToken: credentialResponse.credential,
       });

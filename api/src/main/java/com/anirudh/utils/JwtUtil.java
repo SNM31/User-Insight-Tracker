@@ -89,7 +89,7 @@ public class JwtUtil {
         claims.put("scope", "dashboard_access");
         return Jwts.builder()
                 .setSubject(emailId)
-                .setClaims(claims)
+                .addClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + 24*60*60*1000)) // 24 hours
                 .signWith(dashboardSecretKey, SignatureAlgorithm.HS256)

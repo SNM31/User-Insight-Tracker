@@ -28,6 +28,7 @@ public class InvitationController {
     @Autowired
     private GoogleAuthService googleAuthService;
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/send")
     public ResponseEntity<String> sendInviteEmail(@RequestBody List<InvitationDto> emailAddresses)
     {

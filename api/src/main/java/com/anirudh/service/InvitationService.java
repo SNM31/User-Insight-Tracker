@@ -18,7 +18,7 @@ public class InvitationService {
     // private JwtUtil jwtUtil;
     @Autowired
     @Qualifier("redisObjectTemplate")
-    private RedisTemplate<String,InvitationDto> invitationTokenMapping;
+    private RedisTemplate<String,Object> invitationTokenMapping;
     @Autowired
     private EmailService emailService;
     public void sendInvite(InvitationDto inviteDetails)
@@ -45,7 +45,7 @@ public class InvitationService {
         throw new IllegalArgumentException("Invitation token cannot be null or empty.");
        }
        
-        InvitationDto inviteDetails = invitationTokenMapping.opsForValue().get(token);
+        InvitationDto inviteDetails = (InvitationDto) invitationTokenMapping.opsForValue().get(token);
         if(inviteDetails == null) {
             throw new RuntimeException("Token not found or already used.");
         }
@@ -61,7 +61,7 @@ public class InvitationService {
         if (token == null || token.trim().isEmpty()) {
             throw new IllegalArgumentException("Invitation token cannot be null or empty.");
         }
-        InvitationDto invite = invitationTokenMapping.opsForValue().getAndDelete(token);
+        InvitationDto invite = (InvitationDto) invitationTokenMapping.opsForValue().getAndDelete(token);
         if (invite == null) {
             throw new RuntimeException("Token not found or already used.");
         }
