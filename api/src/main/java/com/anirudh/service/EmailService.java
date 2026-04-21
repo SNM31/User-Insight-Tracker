@@ -24,7 +24,7 @@ public class EmailService {
         context.setVariable("invitationLink", invitationLink);
 
         
-        String htmlContent = templateEngine.process("email/invitation-template", context);
+        String htmlContent = templateEngine.process("emails/invitation-template", context);
 
        
         sendEmail(to, htmlContent);
@@ -34,7 +34,7 @@ public class EmailService {
     {
         Resend resend=new Resend(resendApiKey);
         System.out.println("Email sent to: "+to+" with template: "+htmlBody);
-        String fromAddress = "19uec151@lnmmit.ac.in";
+        String fromAddress = "19uec151@lnmmiit.ac.in";
         // #region agent log
         {
             java.util.Map<String, Object> entryData = new java.util.LinkedHashMap<>();
