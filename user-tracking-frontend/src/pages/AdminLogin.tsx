@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
+import { useAuthContext } from '../context/AuthContext';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const { adminLogin } = useAuthContext();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,8 +26,7 @@ const AdminLogin = () => {
 
       const token = response.data?.token;
       if (token) {
-        localStorage.setItem('adminToken', token);
-        localStorage.setItem('loginTime', Date.now().toString());
+        adminLogin(token);
         navigate('/dashboard');
       } else {
         setError('Dashboard token was not returned. Make sure backend Google dashboard login returns `{ token }`.');

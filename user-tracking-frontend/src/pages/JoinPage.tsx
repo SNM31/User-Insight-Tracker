@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import { useAuthContext } from '../context/AuthContext';
 
 const JoinPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { adminLogin } = useAuthContext();
   const invitationToken = searchParams.get('token');
 
   const [isLoading, setIsLoading] = useState(true);
@@ -55,8 +57,7 @@ const JoinPage = () => {
         return;
       }
 
-      localStorage.setItem('adminToken', appToken);
-      localStorage.setItem('loginTime', Date.now().toString());
+      adminLogin(appToken);
       navigate('/dashboard');
     } catch (err) {
       setError('Failed to finalize invitation. The Google account may not match the invited email.');

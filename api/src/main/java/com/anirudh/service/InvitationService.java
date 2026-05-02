@@ -29,6 +29,7 @@ public class InvitationService {
             String invitationToken=TokenGenerator.generateUniqueToken();
             // need to add role also here with email and for now putting ttl as 2 minutes to test
             invitationTokenMapping.opsForValue().set(invitationToken,inviteDetails,2,TimeUnit.MINUTES);
+            System.out.println("Invitation Token set in Redis as : " + invitationToken + " | Value: " + inviteDetails);
             String inviteLink="http://localhost:3000/register?token="+invitationToken;
             System.out.println("Invite sent to: "+inviteDetails.getEmail()+" with link: "+inviteLink);
             try{

@@ -103,15 +103,15 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
 
-            // Check for the specific claim to ensure it's a dashboard token
             if (!"dashboard_access".equals(claims.get("scope"))) {
-                return null; // Not a valid dashboard token
+                return null;
             }
 
             return claims.getSubject();
         } catch (JwtException e) {
             System.out.println("Invalid Dashboard JWT Token: " + e.getMessage());
-            return null; // Invalid or expired JWT
+            return null;
         }
     }
+
 }

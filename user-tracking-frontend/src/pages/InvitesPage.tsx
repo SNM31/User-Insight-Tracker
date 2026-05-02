@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { getDashboardRole, isTokenValid } from '../utils/tokenUtils';
+import { useAuthContext } from '../context/AuthContext';
 
 type InviteRole = 'ROLE_ADMIN' | 'ROLE_ADVERTISER';
 
@@ -21,7 +22,7 @@ const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
 const InvitesPage = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem('adminToken');
+  const { adminToken: token } = useAuthContext();
   const role = useMemo(() => getDashboardRole(token), [token]);
   const isAdmin = role === 'ROLE_ADMIN';
 

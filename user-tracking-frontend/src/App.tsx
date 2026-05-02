@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { EventType, trackEvent } from './utils/tracker';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AppRoutes from './AppRoutes';
+import { AuthProvider } from './context/AuthContext';
 
 const App = () => {
   const googleClientId=process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
@@ -12,7 +13,7 @@ const App = () => {
       if (loginTime) {
         const logoutTime = Date.now();
         const durationInSeconds = Math.floor((logoutTime - parseInt(loginTime)) / 1000);
-        trackEvent(EventType.SESSION_DURATION, { durationInSeconds });
+        trackEvent(EventType.SESSION_DURATION, { duration: durationInSeconds });
       }
     };
 
@@ -21,13 +22,13 @@ const App = () => {
   }, []);
 
   return (
-    <div className="App">
-      <GoogleOAuthProvider clientId={googleClientId}>
-      <Router>
-        <AppRoutes />
-      </Router>
-      </GoogleOAuthProvider>
-    </div>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <AuthProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 };
 

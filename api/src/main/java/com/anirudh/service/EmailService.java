@@ -34,7 +34,7 @@ public class EmailService {
     {
         Resend resend=new Resend(resendApiKey);
         System.out.println("Email sent to: "+to+" with template: "+htmlBody);
-        String fromAddress = "19uec151@lnmmiit.ac.in";
+        String fromAddress = "invitation@insightsbloom.in";
         // #region agent log
         {
             java.util.Map<String, Object> entryData = new java.util.LinkedHashMap<>();

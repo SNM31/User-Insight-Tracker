@@ -53,6 +53,7 @@ public class InvitationController {
     {
         try{
            String email= invitationService.verifyInviteToken(invitationToken);
+           System.out.println("Verified Email: " + email);
             return ResponseEntity.ok(email);
         }
         catch(IllegalArgumentException e){
@@ -79,6 +80,7 @@ public class InvitationController {
         try{
             // verifying if token is valid or not
            InvitationDto inviteDetails=invitationService.consumeInviteToken(googleAuthRequest.getInvitationToken());
+           System.out.println("Consumed Invitation Token: " + googleAuthRequest.getInvitationToken());
            String jwt=googleAuthService.authenticateForInvitation(
                            googleAuthRequest.getGoogleIdToken(),
                           inviteDetails.getEmail(),

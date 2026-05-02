@@ -5,8 +5,11 @@ export enum EventType {
   CONTENT_OPENED = "CONTENT_OPENED",
   TIME_SPENT_ON_SUBCATEGORY = "TIME_SPENT_ON_SUBCATEGORY",
   SESSION_DURATION = "SESSION_DURATION",
-  CATEGORY_VIEW = "CATEGORY_VIEW", // ✅ newly added
-  LOGOUT = "LOGOUT", // ✅ newly added
+  CATEGORY_VIEW = "CATEGORY_VIEW",
+  LOGOUT = "LOGOUT",
+  PAGE_VIEW = "PAGE_VIEW",
+  SCROLL_DEPTH = "SCROLL_DEPTH",
+  CONTENT_CLICK = "CONTENT_CLICK",
 }
 export const trackEvent = async (
   eventType: EventType,

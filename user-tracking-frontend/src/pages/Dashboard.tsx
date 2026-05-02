@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { getDashboardRole, getTokenPayload } from '../utils/tokenUtils';
+import { useAuthContext } from '../context/AuthContext';
 
 import StatCard from '../components/StatCard';
 import TopCategoriesChart from '../components/TopCategoriesChart';
@@ -54,7 +55,7 @@ const getDefaultDateRange = () => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem('adminToken');
+  const { adminToken: token, adminLogout } = useAuthContext();
   const tokenPayload = useMemo(() => (token ? getTokenPayload(token) : null), [token]);
   const userRole = getDashboardRole(token) ?? 'ROLE_ADVERTISER';
   const isAdmin = userRole === 'ROLE_ADMIN';
@@ -72,6 +73,8 @@ const Dashboard = () => {
     userId: null,
   });
 
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (!token) {
       setError('No dashboard token found. Sign in with Google to continue.');
@@ -79,7 +82,16 @@ const Dashboard = () => {
       return;
     }
 
-    const fetchAnalytics = async () => {
+    // Skip fetch when date range is incomplete
+    if (!filters.startDate || !filters.endDate) {
+      return;
+    }
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(async () => {
       setLoading(true);
       setError('');
 
@@ -93,7 +105,7 @@ const Dashboard = () => {
           {
             params: cleanFilters,
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         setData(response.data);
       } catch (err) {
@@ -102,14 +114,17 @@ const Dashboard = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }, 400);
 
-    fetchAnalytics();
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
   }, [filters, token]);
 
   const handleDashboardLogout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('loginTime');
+    adminLogout();
     navigate('/dashboard/login');
   };
 

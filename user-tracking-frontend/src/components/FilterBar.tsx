@@ -21,12 +21,21 @@ interface FilterBarProps {
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ userRole, currentFilters, onFilterChange }) => {
+  const toLocalDateString = (d: Date): string => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
+    // Only propagate once both ends of the range are chosen
+    if (!start || !end) return;
     onFilterChange({
       ...currentFilters,
-      startDate: start ? start.toISOString().split('T')[0] : '',
-      endDate: end ? end.toISOString().split('T')[0] : '',
+      startDate: toLocalDateString(start),
+      endDate: toLocalDateString(end),
     });
   };
 
@@ -61,8 +70,8 @@ const FilterBar: React.FC<FilterBarProps> = ({ userRole, currentFilters, onFilte
         <label className="mb-1 block text-sm font-medium text-slate-300">Date Range</label>
         <DatePicker
           selectsRange={true}
-          startDate={new Date(currentFilters.startDate)}
-          endDate={new Date(currentFilters.endDate)}
+          startDate={currentFilters.startDate ? new Date(currentFilters.startDate + 'T00:00:00') : null}
+          endDate={currentFilters.endDate ? new Date(currentFilters.endDate + 'T00:00:00') : null}
           onChange={handleDateChange}
           className="w-full md:w-64 rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-sm text-white"
         />
